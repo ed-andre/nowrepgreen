@@ -1,0 +1,460 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Metadata table for version tracking
+model SyncMetadata {
+  id            Int      @id @default(autoincrement())
+  entityName    String
+  activeVersion Int
+  backupVersion Int
+  updatedAt     DateTime @updatedAt
+
+  @@index([entityName])
+}
+
+// Raw JSON Storage Tables
+model BoardsJson {
+  id        Int      @id @default(autoincrement())
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model BoardsTalentsJson {
+  id        Int      @id @default(autoincrement())
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model BoardsPortfoliosJson {
+  id        Int      @id @default(autoincrement())
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model PortfoliosMediaJson {
+  id        Int      @id @default(autoincrement())
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model TalentsJson {
+  id        Int      @id @default(autoincrement())
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model TalentsPortfoliosJson {
+  id        Int      @id @default(autoincrement())
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model TalentsMeasurementsJson {
+  id        Int      @id @default(autoincrement())
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model TalentsSocialsJson {
+  id        Int      @id @default(autoincrement())
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+
+// Boards versioned tables
+model Boards_v1 {
+  id          String  @id
+  title       String
+  description String?
+  coverImage  String?
+
+  @@index([title])
+}
+
+model Boards_v2 {
+  id          String  @id
+  title       String
+  description String?
+  coverImage  String?
+
+  @@index([title])
+}
+
+/// @view
+model Boards_current {
+  id          String  @id
+  title       String
+  description String?
+  coverImage  String?
+}
+
+
+// BoardsTalents junction versioned tables
+model BoardsTalents_v1 {
+  id        String @id @default(cuid())
+  boardId   String
+  talentId  String
+
+  @@unique([boardId, talentId])
+  @@index([talentId])
+  @@index([boardId])
+}
+
+model BoardsTalents_v2 {
+  id        String @id @default(cuid())
+  boardId   String
+  talentId  String
+
+  @@unique([boardId, talentId])
+  @@index([talentId])
+  @@index([boardId])
+}
+
+/// @view
+model BoardsTalents_current {
+  id        String @id
+  boardId   String
+  talentId  String
+}
+
+// Talents versioned tables
+model Talents_v1 {
+  id           String  @id
+  firstName    String
+  lastName     String
+  bio          String? // HTML content
+  profileImage String?
+  gender       String?
+  pronouns     String?
+  talentType   String  // Store name directly instead of ID
+
+  @@index([firstName, lastName])
+  @@index([talentType])
+}
+
+model Talents_v2 {
+  id           String  @id
+  firstName    String
+  lastName     String
+  bio          String?
+  profileImage String?
+  gender       String?
+  pronouns     String?
+  talentType   String
+
+  @@index([firstName, lastName])
+  @@index([talentType])
+}
+
+/// @view
+model Talents_current {
+  id           String  @id
+  firstName    String
+  lastName     String
+  bio          String?
+  profileImage String?
+  gender       String?
+  pronouns     String?
+  talentType   String
+}
+
+
+// Portfolios versioned tables
+model Portfolios_v1 {
+  id          String  @id
+  talentId    String
+  title       String
+  description String?
+  isDefault   Boolean @default(false)
+  category    String? 
+  coverImage  String?
+
+  @@index([talentId])
+  @@index([category])
+  @@index([title])
+}
+
+model Portfolios_v2 {
+  id          String  @id
+  talentId    String
+  title       String
+  description String?
+  isDefault   Boolean @default(false)
+  category    String?
+  coverImage  String?
+
+  @@index([talentId])
+  @@index([category])
+  @@index([title])
+}
+
+/// @view
+model Portfolios_current {
+  id          String  @id
+  talentId    String
+  title       String
+  description String?
+  isDefault   Boolean @default(false)
+  category    String?
+  coverImage  String?
+}
+
+// BoardsPortfolios junction versioned tables
+model BoardsPortfolios_v1 {
+  id          String @id @default(cuid())
+  boardId     String
+  portfolioId String
+
+  @@unique([boardId, portfolioId])
+  @@index([portfolioId])
+  @@index([boardId])
+}
+
+model BoardsPortfolios_v2 {
+  id          String @id @default(cuid())
+  boardId     String
+  portfolioId String
+
+  @@unique([boardId, portfolioId])
+  @@index([portfolioId])
+  @@index([boardId])
+}
+
+/// @view
+model BoardsPortfolios_current {
+  id          String @id
+  boardId     String
+  portfolioId String
+}
+
+// Media Tags versioned tables
+model MediaTags_v1 {
+  id   String @id
+  name String
+  slug String
+
+  @@index([name])
+  @@index([slug])
+}
+
+model MediaTags_v2 {
+  id   String @id
+  name String
+  slug String
+
+  @@index([name])
+  @@index([slug])
+}
+
+/// @view
+model MediaTags_current {
+  id   String @id
+  name String
+  slug String
+}
+
+// Portfolio Media versioned tables
+model PortfolioMedia_v1 {
+  id          String  @id
+  portfolioId String
+  type        String  // e.g., "IMAGE"
+  url         String
+  filename    String
+  coverImage  String?
+  order       Int
+  metadata    Json    // Stores width, height, fileSize
+
+  @@index([portfolioId])
+  @@index([type])
+  @@index([order])
+}
+
+model PortfolioMedia_v2 {
+  id          String  @id
+  portfolioId String
+  type        String
+  url         String
+  filename    String
+  coverImage  String?
+  order       Int
+  metadata    Json
+
+  @@index([portfolioId])
+  @@index([type])
+  @@index([order])
+}
+
+/// @view
+model PortfolioMedia_current {
+  id          String  @id
+  portfolioId String
+  type        String
+  url         String
+  filename    String
+  coverImage  String?
+  order       Int
+  metadata    Json
+}
+
+// Media Tags Junction versioned tables
+model MediaTags_Junction_v1 {
+  id       String @id @default(cuid())
+  mediaId  String
+  tagId    String
+
+  @@unique([mediaId, tagId])
+  @@index([tagId])
+  @@index([mediaId])
+}
+
+model MediaTags_Junction_v2 {
+  id       String @id @default(cuid())
+  mediaId  String
+  tagId    String
+
+  @@unique([mediaId, tagId])
+  @@index([tagId])
+  @@index([mediaId])
+}
+
+/// @view
+model MediaTags_Junction_current {
+  id       String @id
+  mediaId  String
+  tagId    String
+}
+
+// Add new Measurements tables
+model TalentsMeasurements_v1 {
+  id          String   @id
+  talentId    String   @unique
+  heightCm    Float?
+  weightKg    Float?
+  bustCm      Float?
+  waistCm     Float?
+  hipsCm      Float?
+  shoeSizeEu  Float?
+  heightFtIn  String?
+  weightLbs   Float?
+  bustIn      Float?
+  waistIn     Float?
+  hipsIn      Float?
+  shoeSizeUs  Float?
+  eyeColor    String?
+  hairColor   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([talentId])
+}
+
+model TalentsMeasurements_v2 {
+  id          String   @id
+  talentId    String   @unique
+  heightCm    Float?
+  weightKg    Float?
+  bustCm      Float?
+  waistCm     Float?
+  hipsCm      Float?
+  shoeSizeEu  Float?
+  heightFtIn  String?
+  weightLbs   Float?
+  bustIn      Float?
+  waistIn     Float?
+  hipsIn      Float?
+  shoeSizeUs  Float?
+  eyeColor    String?
+  hairColor   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([talentId])
+}
+
+/// @view
+model TalentsMeasurements_current {
+  id          String   @id
+  talentId    String   @unique
+  heightCm    Float?
+  weightKg    Float?
+  bustCm      Float?
+  waistCm     Float?
+  hipsCm      Float?
+  shoeSizeEu  Float?
+  heightFtIn  String?
+  weightLbs   Float?
+  bustIn      Float?
+  waistIn     Float?
+  hipsIn      Float?
+  shoeSizeUs  Float?
+  eyeColor    String?
+  hairColor   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Add new Socials tables
+model TalentsSocials_v1 {
+  id       String @id @default(cuid())
+  talentId String
+  platform String
+  username String
+  url      String
+
+  @@unique([talentId, platform])
+  @@index([talentId])
+}
+
+model TalentsSocials_v2 {
+  id       String @id @default(cuid())
+  talentId String
+  platform String
+  username String
+  url      String
+
+  @@unique([talentId, platform])
+  @@index([talentId])
+}
+
+/// @view
+model TalentsSocials_current {
+  id       String @id
+  talentId String
+  platform String
+  username String
+  url      String
+}
