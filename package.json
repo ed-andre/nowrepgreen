@@ -9,6 +9,7 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^6.4.0",
     "@react-router/dev": "^7.2.0",
     "@react-router/node": "^7.2.0",

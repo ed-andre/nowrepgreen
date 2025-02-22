@@ -9,6 +9,8 @@ export const API_CONFIG = {
     boardsPortfolios: "/api/v1/public/boards/portfolios",
     // PortfoliosMedia
     portfoliosMedia: "/api/v1/public/portfolios/media",
+    // MediaTags
+    mediaTags: "/api/v1/public/portfolios/media/tags",
     // Talents
     talents: "/api/v1/public/talents",
     // TalentsPortfolios

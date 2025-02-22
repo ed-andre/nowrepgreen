@@ -1,3 +1,5 @@
+//DEPRECATED
+/*
 import { task } from "@trigger.dev/sdk/v3";
 import { PrismaClient } from "@prisma/client";
 import { API_CONFIG } from "./config";
@@ -206,6 +208,6 @@ export const syncTalentsSocials = task({
     await cleanOldRecords(prisma.talentsSocialsJson);
   }
 });
-
+*/
 
 

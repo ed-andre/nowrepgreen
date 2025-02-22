@@ -1,28 +1,45 @@
-import { task } from "@trigger.dev/sdk/v3";
-import {
-  syncBoards,
-  syncBoardsTalents,
-  syncBoardsPortfolios,
-  syncPortfoliosMedia,
-  syncTalents,
-  syncTalentsPortfolios,
-  syncTalentsMeasurements,
-  syncTalentsSocials
-} from "./sync-tasks";
+import { task, SubtaskUnwrapError } from "@trigger.dev/sdk/v3";
+import { syncAllJson } from "./sync-all";
+import { transformAllData } from "./transform-all";
+
+interface SyncResult {
+  success: boolean;
+  syncedEndpoints: string[];
+  errors?: string[];
+}
+
+interface TaskError extends SubtaskUnwrapError {
+  attemptNumber?: number;
+}
 
 export const orchestrateSyncTask = task({
   id: "orchestrate-sync",
   run: async () => {
-    await Promise.all([
-      syncBoards.trigger(),
-      syncBoardsTalents.trigger(),
-      syncBoardsPortfolios.trigger(),
-      syncPortfoliosMedia.trigger(),
-      syncTalents.trigger(),
-      syncTalentsPortfolios.trigger(),
-      syncTalentsMeasurements.trigger(),
-      syncTalentsSocials.trigger()
-    ]);
+    try {
+      // Run sync and wait for result (includes all retry attempts)
+      const syncResult = await syncAllJson.triggerAndWait().unwrap() as SyncResult;
+
+      if (syncResult.success) {
+        // Only run transform if sync was successful after all attempts
+        await transformAllData.triggerAndWait().unwrap();
+      } else {
+        console.error("Sync failed after all retry attempts", {
+          errors: syncResult.errors,
+          syncedEndpoints: syncResult.syncedEndpoints
+        });
+      }
+    } catch (error) {
+      if (error instanceof SubtaskUnwrapError) {
+        const taskError = error as TaskError;
+        console.error("Task failed completely", {
+          runId: taskError.runId,
+          taskId: taskError.taskId,
+          cause: taskError.cause,
+          attemptNumber: taskError.attemptNumber
+        });
+      }
+      throw error;
+    }
   }
 });
 

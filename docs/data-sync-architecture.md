@@ -9,8 +9,8 @@ NowRepGreen maintains a local copy of NowRepBlue data through scheduled synchron
 NowRepBlue API → JSON Storage → Data Transformation → Normalized Tables → Web App Queries
 
 ### 2. Components
-- **Sync Tasks**: Fetch and store raw JSON from API
-- **Transform Tasks**: Convert JSON to normalized structure
+- **Consolidated Sync Task**: Single task to fetch and store raw JSON from all API endpoints
+- **Consolidated Transform Task**: Single task to convert all JSON to normalized structure
 - **Version Manager**: Maintain table versions and views
 - **Cleanup Process**: Remove outdated versions
 
@@ -23,15 +23,30 @@ NowRepBlue API → JSON Storage → Data Transformation → Normalized Tables �
 
 ### 4. Implementation Guide
 
-#### A. Transform Tasks Structure
-1. Create transform tasks in `trigger/transform-tasks.ts`
-2. Each task should:
-   - Fetch latest JSON from entity_json table
-   - Get next version number from metadata
-   - Create new versioned table
-   - Transform and insert data
-   - Update views and metadata
-   - Clean up old versions
+#### A. Task Structure
+1. Create three main tasks in `trigger/tasks.ts`:
+   - `syncAllJson`: Fetches and stores JSON from all endpoints
+   - `transformAllData`: Processes all JSON into versioned tables
+   - `orchestrateSync`: Manages the sync lifecycle and metadata
+
+2. Each task handles:
+   - **syncAllJson**:
+     - Fetches data from all API endpoints
+     - Stores in respective entity_json tables
+     - Reports success/failure per endpoint
+     - Handles non-critical failures gracefully
+
+   - **transformAllData**:
+     - Processes all JSON tables in correct dependency order
+     - Creates new versioned tables
+     - Maintains referential integrity
+     - Reports transformation status
+
+   - **orchestrateSync**:
+     - Chains sync and transform tasks
+     - Updates metadata and views
+     - Manages version cleanup
+     - Handles rollback scenarios
 
 #### B. Version Management
 1. Create version manager in `trigger/version-manager.ts` with functions for:
@@ -70,10 +85,11 @@ NowRepBlue API → JSON Storage → Data Transformation → Normalized Tables �
    - MediaTags_Junction
 
 ### 6. Error Handling
-- Implement try-catch blocks in all tasks
-- Log errors with entity and version info
-- Maintain backup version for quick rollback
-- Use transactions for atomic updates
+- Transaction-based atomic operations for related data
+- Granular error reporting per entity
+- Critical vs non-critical failure handling
+- Partial success scenarios management
+- Automated rollback for failed transformations
 
 ### 7. Testing Strategy
 1. Create test JSON data fixtures

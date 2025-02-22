@@ -58,6 +58,16 @@ model PortfoliosMediaJson {
   @@index([createdAt])
 }
 
+model MediaTagsJson {
+  id        Int      @id @default(autoincrement())
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+
 model TalentsJson {
   id        Int      @id @default(autoincrement())
   data      Json
@@ -114,7 +124,7 @@ model Boards_v2 {
   @@index([title])
 }
 
-/// @view
+
 model Boards_current {
   id          String  @id
   title       String
@@ -144,7 +154,7 @@ model BoardsTalents_v2 {
   @@index([boardId])
 }
 
-/// @view
+
 model BoardsTalents_current {
   id        String @id
   boardId   String
@@ -180,7 +190,7 @@ model Talents_v2 {
   @@index([talentType])
 }
 
-/// @view
+
 model Talents_current {
   id           String  @id
   firstName    String
@@ -193,22 +203,8 @@ model Talents_current {
 }
 
 
-// Portfolios versioned tables
-model Portfolios_v1 {
-  id          String  @id
-  talentId    String
-  title       String
-  description String?
-  isDefault   Boolean @default(false)
-  category    String? 
-  coverImage  String?
-
-  @@index([talentId])
-  @@index([category])
-  @@index([title])
-}
-
-model Portfolios_v2 {
+// Talent Portfolios versioned tables
+model TalentsPortfolios_v1 {
   id          String  @id
   talentId    String
   title       String
@@ -222,8 +218,22 @@ model Portfolios_v2 {
   @@index([title])
 }
 
-/// @view
-model Portfolios_current {
+model TalentsPortfolios_v2 {
+  id          String  @id
+  talentId    String
+  title       String
+  description String?
+  isDefault   Boolean @default(false)
+  category    String?
+  coverImage  String?
+
+  @@index([talentId])
+  @@index([category])
+  @@index([title])
+}
+
+
+model TalentsPortfolios_current {
   id          String  @id
   talentId    String
   title       String
@@ -238,27 +248,32 @@ model BoardsPortfolios_v1 {
   id          String @id @default(cuid())
   boardId     String
   portfolioId String
+  talentId    String
 
   @@unique([boardId, portfolioId])
   @@index([portfolioId])
   @@index([boardId])
+  @@index([talentId])
 }
 
 model BoardsPortfolios_v2 {
   id          String @id @default(cuid())
   boardId     String
   portfolioId String
+  talentId    String
 
   @@unique([boardId, portfolioId])
   @@index([portfolioId])
   @@index([boardId])
+  @@index([talentId])
 }
 
-/// @view
+
 model BoardsPortfolios_current {
   id          String @id
   boardId     String
   portfolioId String
+  talentId    String
 }
 
 // Media Tags versioned tables
@@ -280,7 +295,7 @@ model MediaTags_v2 {
   @@index([slug])
 }
 
-/// @view
+
 model MediaTags_current {
   id   String @id
   name String
@@ -288,46 +303,59 @@ model MediaTags_current {
 }
 
 // Portfolio Media versioned tables
-model PortfolioMedia_v1 {
-  id          String  @id
-  portfolioId String
-  type        String  // e.g., "IMAGE"
-  url         String
-  filename    String
-  coverImage  String?
-  order       Int
-  metadata    Json    // Stores width, height, fileSize
-
-  @@index([portfolioId])
-  @@index([type])
-  @@index([order])
-}
-
-model PortfolioMedia_v2 {
-  id          String  @id
+model PortfoliosMedia_v1 {
+  id          String  @id @default(cuid())
+  mediaId     String  // Original media ID
   portfolioId String
   type        String
   url         String
   filename    String
   coverImage  String?
   order       Int
-  metadata    Json
+  width       Int
+  height      Int
+  size        Int
+  caption     String?
 
   @@index([portfolioId])
   @@index([type])
   @@index([order])
+  @@index([mediaId])  // Add index for lookups
 }
 
-/// @view
-model PortfolioMedia_current {
-  id          String  @id
+model PortfoliosMedia_v2 {
+  id          String  @id @default(cuid())
+  mediaId     String  // Original media ID
   portfolioId String
   type        String
   url         String
   filename    String
   coverImage  String?
   order       Int
-  metadata    Json
+  width       Int
+  height      Int
+  size        Int
+  caption     String?
+
+  @@index([portfolioId])
+  @@index([type])
+  @@index([order])
+}
+
+
+model PortfoliosMedia_current {
+  id          String  @id @default(cuid())
+  mediaId     String  // Original media ID
+  portfolioId String
+  type        String
+  url         String
+  filename    String
+  coverImage  String?
+  order       Int
+  width       Int
+  height      Int
+  size        Int
+  caption     String?
 }
 
 // Media Tags Junction versioned tables
@@ -351,14 +379,14 @@ model MediaTags_Junction_v2 {
   @@index([mediaId])
 }
 
-/// @view
+
 model MediaTags_Junction_current {
   id       String @id
   mediaId  String
   tagId    String
 }
 
-// Add new Measurements tables
+
 model TalentsMeasurements_v1 {
   id          String   @id
   talentId    String   @unique
@@ -405,7 +433,7 @@ model TalentsMeasurements_v2 {
   @@index([talentId])
 }
 
-/// @view
+
 model TalentsMeasurements_current {
   id          String   @id
   talentId    String   @unique
@@ -450,7 +478,7 @@ model TalentsSocials_v2 {
   @@index([talentId])
 }
 
-/// @view
+
 model TalentsSocials_current {
   id       String @id
   talentId String
