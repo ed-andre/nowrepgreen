@@ -18,11 +18,11 @@ export const API_CONFIG = {
     // TalentsMeasurements
     talentsMeasurements: "/api/v1/public/talents/measurements",
     // TalentsSocials
-    talentsSocials: "/api/v1/public/talents/socials"
+    talentsSocials: "/api/v1/public/talents/socials",
   },
   getFullUrl: (endpoint: string) => {
     const url = `${process.env.SOURCE_API_URL}${endpoint}`;
-    console.log('Calling API URL:', url);
+    console.log("Calling API URL:", url);
     return url;
-  }
+  },
 };

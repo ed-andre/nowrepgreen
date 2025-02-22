@@ -1,4 +1,5 @@
 import { task, SubtaskUnwrapError } from "@trigger.dev/sdk/v3";
+
 import { syncAllJson } from "./sync-all";
 import { transformAllData } from "./transform-all";
 
@@ -17,7 +18,9 @@ export const orchestrateSyncTask = task({
   run: async () => {
     try {
       // Run sync and wait for result (includes all retry attempts)
-      const syncResult = await syncAllJson.triggerAndWait().unwrap() as SyncResult;
+      const syncResult = (await syncAllJson
+        .triggerAndWait()
+        .unwrap()) as SyncResult;
 
       if (syncResult.success) {
         // Only run transform if sync was successful after all attempts
@@ -25,7 +28,7 @@ export const orchestrateSyncTask = task({
       } else {
         console.error("Sync failed after all retry attempts", {
           errors: syncResult.errors,
-          syncedEndpoints: syncResult.syncedEndpoints
+          syncedEndpoints: syncResult.syncedEndpoints,
         });
       }
     } catch (error) {
@@ -35,11 +38,10 @@ export const orchestrateSyncTask = task({
           runId: taskError.runId,
           taskId: taskError.taskId,
           cause: taskError.cause,
-          attemptNumber: taskError.attemptNumber
+          attemptNumber: taskError.attemptNumber,
         });
       }
       throw error;
     }
-  }
+  },
 });
-

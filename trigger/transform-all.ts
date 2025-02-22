@@ -1,6 +1,6 @@
-import { task } from "@trigger.dev/sdk/v3";
-import { PrismaClient, Prisma } from "@prisma/client";
 import { createId } from "@paralleldrive/cuid2";
+import { PrismaClient, Prisma } from "@prisma/client";
+import { task } from "@trigger.dev/sdk/v3";
 
 const prisma = new PrismaClient();
 
@@ -25,7 +25,6 @@ interface BoardTalent {
   }>;
 }
 
-
 interface BoardPortfolio {
   boardId: string;
   portfolios: Array<{
@@ -33,7 +32,6 @@ interface BoardPortfolio {
     talentId: string;
   }>;
 }
-
 
 interface PortfolioMedia {
   portfolioId: string;
@@ -56,7 +54,6 @@ interface PortfolioMedia {
   }>;
 }
 
-
 interface MediaTag {
   id: string;
   name: string;
@@ -65,7 +62,7 @@ interface MediaTag {
 
 interface MediaTagsResponse {
   data: Array<{
-    id: string;  // mediaId
+    id: string; // mediaId
     tags: MediaTag[];
   }>;
 }
@@ -84,7 +81,6 @@ interface Talent {
   };
 }
 
-
 interface TalentPortfolio {
   talentId: string;
   portfolios: Array<{
@@ -100,7 +96,6 @@ interface TalentPortfolio {
     } | null;
   }>;
 }
-
 
 interface TalentMeasurement {
   id: string;
@@ -126,8 +121,6 @@ interface TalentMeasurement {
   } | null;
 }
 
-
-
 interface TalentSocial {
   id: string;
   socials: Array<{
@@ -140,40 +133,40 @@ interface TalentSocial {
 async function getNextVersion(entity: string) {
   const current = await prisma.syncMetadata.findFirst({
     where: { entityName: entity },
-    orderBy: { id: 'desc' }  // Get the latest record
+    orderBy: { id: "desc" }, // Get the latest record
   });
 
   // If no current version, start with 1
   if (!current?.activeVersion) {
     return {
       newVersion: 1,
-      oldVersion: undefined
+      oldVersion: undefined,
     };
   }
 
   // Log current state for debugging
-  console.log('Current version state:', {
+  console.log("Current version state:", {
     currentActive: current.activeVersion,
     currentBackup: current.backupVersion,
-    willSwitchTo: current.activeVersion === 1 ? 2 : 1
+    willSwitchTo: current.activeVersion === 1 ? 2 : 1,
   });
 
   // Alternate between 1 and 2
   return {
     newVersion: current.activeVersion === 1 ? 2 : 1,
-    oldVersion: current.activeVersion
+    oldVersion: current.activeVersion,
   };
 }
 
 async function updateVersionAndViews(
   tx: Prisma.TransactionClient,
   entity: string,
-  versions: { newVersion: number; oldVersion?: number }
+  versions: { newVersion: number; oldVersion?: number },
 ) {
   // Get current metadata to ensure proper version tracking
   const current = await tx.syncMetadata.findFirst({
     where: { entityName: entity },
-    orderBy: { id: 'desc' }
+    orderBy: { id: "desc" },
   });
 
   if (current) {
@@ -182,8 +175,8 @@ async function updateVersionAndViews(
       where: { id: current.id },
       data: {
         activeVersion: versions.newVersion,
-        backupVersion: current.activeVersion
-      }
+        backupVersion: current.activeVersion,
+      },
     });
   } else {
     // Create first record
@@ -191,8 +184,8 @@ async function updateVersionAndViews(
       data: {
         entityName: entity,
         activeVersion: versions.newVersion,
-        backupVersion: 0
-      }
+        backupVersion: 0,
+      },
     });
   }
 
@@ -205,26 +198,26 @@ async function updateVersionAndViews(
   }
 
   await tx.$executeRawUnsafe(
-    `CREATE VIEW "${entity}_current" AS SELECT * FROM "${entity}_v${versions.newVersion}"`
+    `CREATE VIEW "${entity}_current" AS SELECT * FROM "${entity}_v${versions.newVersion}"`,
   );
 }
 
 async function transformBoards(): Promise<TransformResult> {
   try {
     const latestJson = await prisma.boardsJson.findFirst({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     if (!latestJson) {
-      throw new Error('No JSON data found for boards');
+      throw new Error("No JSON data found for boards");
     }
 
-    const { newVersion, oldVersion } = await getNextVersion('boards');
+    const { newVersion, oldVersion } = await getNextVersion("boards");
 
-    console.log('Version transition:', {
-      operation: 'Starting transform',
+    console.log("Version transition:", {
+      operation: "Starting transform",
       targetVersion: `boards_v${newVersion}`,
-      previousVersion: oldVersion ? `boards_v${oldVersion}` : 'none'
+      previousVersion: oldVersion ? `boards_v${oldVersion}` : "none",
     });
 
     await prisma.$transaction(async (tx) => {
@@ -233,20 +226,23 @@ async function transformBoards(): Promise<TransformResult> {
       // Clear the target table first
       await tx.$executeRawUnsafe(`DELETE FROM ${targetTable}`);
 
-      const jsonData = typeof latestJson.data === 'string'
-        ? JSON.parse(latestJson.data)
-        : latestJson.data;
+      const jsonData =
+        typeof latestJson.data === "string"
+          ? JSON.parse(latestJson.data)
+          : latestJson.data;
 
       const boards = Array.isArray(jsonData) ? jsonData : jsonData.data;
 
       if (!Array.isArray(boards)) {
-        throw new Error(`Invalid boards data structure: ${JSON.stringify(jsonData)}`);
+        throw new Error(
+          `Invalid boards data structure: ${JSON.stringify(jsonData)}`,
+        );
       }
 
-      console.log('Data operation:', {
-        action: 'Inserting records',
+      console.log("Data operation:", {
+        action: "Inserting records",
         targetTable,
-        recordCount: boards.length
+        recordCount: boards.length,
       });
 
       // Insert records one by one
@@ -258,33 +254,32 @@ async function transformBoards(): Promise<TransformResult> {
         `;
       }
 
-      console.log('Version update:', {
-        action: 'Updating view and metadata',
+      console.log("Version update:", {
+        action: "Updating view and metadata",
         newActiveVersion: `boards_v${newVersion}`,
-        newBackupVersion: `boards_v${oldVersion ?? 0}`
+        newBackupVersion: `boards_v${oldVersion ?? 0}`,
       });
 
-      await updateVersionAndViews(tx, 'boards', { newVersion, oldVersion });
+      await updateVersionAndViews(tx, "boards", { newVersion, oldVersion });
     });
 
-    console.log('Transform complete:', {
-      status: 'success',
+    console.log("Transform complete:", {
+      status: "success",
       activeVersion: `boards_v${newVersion}`,
-      viewUpdated: 'boards_current'
+      viewUpdated: "boards_current",
     });
 
     return {
-      entity: 'boards',
+      entity: "boards",
       success: true,
-      version: newVersion
+      version: newVersion,
     };
-
   } catch (error) {
-    console.error('Transform error details:', error);
+    console.error("Transform error details:", error);
     return {
-      entity: 'boards',
+      entity: "boards",
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -292,19 +287,19 @@ async function transformBoards(): Promise<TransformResult> {
 async function transformBoardsTalents(): Promise<TransformResult> {
   try {
     const latestJson = await prisma.boardsTalentsJson.findFirst({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     if (!latestJson) {
-      throw new Error('No JSON data found for boardstalents');
+      throw new Error("No JSON data found for boardstalents");
     }
 
-    const { newVersion, oldVersion } = await getNextVersion('boardstalents');
+    const { newVersion, oldVersion } = await getNextVersion("boardstalents");
 
-    console.log('Version transition:', {
-      operation: 'Starting transform',
+    console.log("Version transition:", {
+      operation: "Starting transform",
       targetVersion: `boardstalents_v${newVersion}`,
-      previousVersion: oldVersion ? `boardstalents_v${oldVersion}` : 'none'
+      previousVersion: oldVersion ? `boardstalents_v${oldVersion}` : "none",
     });
 
     await prisma.$transaction(async (tx) => {
@@ -316,11 +311,14 @@ async function transformBoardsTalents(): Promise<TransformResult> {
       // Data is already in the correct format
       const boardTalents = latestJson.data as any[];
 
-      console.log('Data operation:', {
-        action: 'Inserting relationships',
+      console.log("Data operation:", {
+        action: "Inserting relationships",
         targetTable,
         boardCount: boardTalents.length,
-        totalRelationships: boardTalents.reduce((sum, board) => sum + board.talents.length, 0)
+        totalRelationships: boardTalents.reduce(
+          (sum, board) => sum + board.talents.length,
+          0,
+        ),
       });
 
       // Insert relationships
@@ -334,33 +332,35 @@ async function transformBoardsTalents(): Promise<TransformResult> {
         }
       }
 
-      console.log('Version update:', {
-        action: 'Updating view and metadata',
+      console.log("Version update:", {
+        action: "Updating view and metadata",
         newActiveVersion: `boardstalents_v${newVersion}`,
-        newBackupVersion: `boardstalents_v${oldVersion ?? 0}`
+        newBackupVersion: `boardstalents_v${oldVersion ?? 0}`,
       });
 
-      await updateVersionAndViews(tx, 'boardstalents', { newVersion, oldVersion });
+      await updateVersionAndViews(tx, "boardstalents", {
+        newVersion,
+        oldVersion,
+      });
     });
 
-    console.log('Transform complete:', {
-      status: 'success',
+    console.log("Transform complete:", {
+      status: "success",
       activeVersion: `boardstalents_v${newVersion}`,
-      viewUpdated: 'boardstalents_current'
+      viewUpdated: "boardstalents_current",
     });
 
     return {
-      entity: 'boardstalents',
+      entity: "boardstalents",
       success: true,
-      version: newVersion
+      version: newVersion,
     };
-
   } catch (error) {
-    console.error('Transform error details:', error);
+    console.error("Transform error details:", error);
     return {
-      entity: 'boardstalents',
+      entity: "boardstalents",
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -368,19 +368,19 @@ async function transformBoardsTalents(): Promise<TransformResult> {
 async function transformBoardsPortfolios(): Promise<TransformResult> {
   try {
     const latestJson = await prisma.boardsPortfoliosJson.findFirst({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     if (!latestJson) {
-      throw new Error('No JSON data found for boardsportfolios');
+      throw new Error("No JSON data found for boardsportfolios");
     }
 
-    const { newVersion, oldVersion } = await getNextVersion('boardsportfolios');
+    const { newVersion, oldVersion } = await getNextVersion("boardsportfolios");
 
-    console.log('Version transition:', {
-      operation: 'Starting transform',
+    console.log("Version transition:", {
+      operation: "Starting transform",
       targetVersion: `boardsportfolios_v${newVersion}`,
-      previousVersion: oldVersion ? `boardsportfolios_v${oldVersion}` : 'none'
+      previousVersion: oldVersion ? `boardsportfolios_v${oldVersion}` : "none",
     });
 
     await prisma.$transaction(async (tx) => {
@@ -392,11 +392,14 @@ async function transformBoardsPortfolios(): Promise<TransformResult> {
       // Data is already in the correct format
       const boardPortfolios = latestJson.data as any[];
 
-      console.log('Data operation:', {
-        action: 'Inserting relationships',
+      console.log("Data operation:", {
+        action: "Inserting relationships",
         targetTable,
         boardCount: boardPortfolios.length,
-        totalRelationships: boardPortfolios.reduce((sum, board) => sum + board.portfolios.length, 0)
+        totalRelationships: boardPortfolios.reduce(
+          (sum, board) => sum + board.portfolios.length,
+          0,
+        ),
       });
 
       // Insert relationships
@@ -410,33 +413,35 @@ async function transformBoardsPortfolios(): Promise<TransformResult> {
         }
       }
 
-      console.log('Version update:', {
-        action: 'Updating view and metadata',
+      console.log("Version update:", {
+        action: "Updating view and metadata",
         newActiveVersion: `boardsportfolios_v${newVersion}`,
-        newBackupVersion: `boardsportfolios_v${oldVersion ?? 0}`
+        newBackupVersion: `boardsportfolios_v${oldVersion ?? 0}`,
       });
 
-      await updateVersionAndViews(tx, 'boardsportfolios', { newVersion, oldVersion });
+      await updateVersionAndViews(tx, "boardsportfolios", {
+        newVersion,
+        oldVersion,
+      });
     });
 
-    console.log('Transform complete:', {
-      status: 'success',
+    console.log("Transform complete:", {
+      status: "success",
       activeVersion: `boardsportfolios_v${newVersion}`,
-      viewUpdated: 'boardsportfolios_current'
+      viewUpdated: "boardsportfolios_current",
     });
 
     return {
-      entity: 'boardsportfolios',
+      entity: "boardsportfolios",
       success: true,
-      version: newVersion
+      version: newVersion,
     };
-
   } catch (error) {
-    console.error('Transform error details:', error);
+    console.error("Transform error details:", error);
     return {
-      entity: 'boardsportfolios',
+      entity: "boardsportfolios",
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -444,19 +449,19 @@ async function transformBoardsPortfolios(): Promise<TransformResult> {
 async function transformPortfoliosMedia(): Promise<TransformResult> {
   try {
     const latestJson = await prisma.portfoliosMediaJson.findFirst({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     if (!latestJson) {
-      throw new Error('No JSON data found for portfoliosmedia');
+      throw new Error("No JSON data found for portfoliosmedia");
     }
 
-    const { newVersion, oldVersion } = await getNextVersion('portfoliosmedia');
+    const { newVersion, oldVersion } = await getNextVersion("portfoliosmedia");
 
-    console.log('Version transition:', {
-      operation: 'Starting transform',
+    console.log("Version transition:", {
+      operation: "Starting transform",
       targetVersion: `portfoliosmedia_v${newVersion}`,
-      previousVersion: oldVersion ? `portfoliosmedia_v${oldVersion}` : 'none'
+      previousVersion: oldVersion ? `portfoliosmedia_v${oldVersion}` : "none",
     });
 
     await prisma.$transaction(async (tx) => {
@@ -466,17 +471,18 @@ async function transformPortfoliosMedia(): Promise<TransformResult> {
       await tx.$executeRawUnsafe(`DELETE FROM "${targetTable}"`);
 
       // Double check the table is empty
-      const count = await tx.$queryRaw`SELECT COUNT(*) as count FROM ${Prisma.raw(targetTable)}`;
-      console.log('Table cleared, current count:', count);
+      const count =
+        await tx.$queryRaw`SELECT COUNT(*) as count FROM ${Prisma.raw(targetTable)}`;
+      console.log("Table cleared, current count:", count);
 
       // Data is already in the correct format
       const portfoliosMedia = latestJson.data as any[];
 
-      console.log('Data operation:', {
-        action: 'Inserting media',
+      console.log("Data operation:", {
+        action: "Inserting media",
         targetTable,
         portfolioCount: portfoliosMedia.length,
-        totalMedia: portfoliosMedia.reduce((sum, p) => sum + p.media.length, 0)
+        totalMedia: portfoliosMedia.reduce((sum, p) => sum + p.media.length, 0),
       });
 
       // Insert media records
@@ -503,33 +509,35 @@ async function transformPortfoliosMedia(): Promise<TransformResult> {
         }
       }
 
-      console.log('Version update:', {
-        action: 'Updating view and metadata',
+      console.log("Version update:", {
+        action: "Updating view and metadata",
         newActiveVersion: `portfoliosmedia_v${newVersion}`,
-        newBackupVersion: `portfoliosmedia_v${oldVersion ?? 0}`
+        newBackupVersion: `portfoliosmedia_v${oldVersion ?? 0}`,
       });
 
-      await updateVersionAndViews(tx, 'portfoliosmedia', { newVersion, oldVersion });
+      await updateVersionAndViews(tx, "portfoliosmedia", {
+        newVersion,
+        oldVersion,
+      });
     });
 
-    console.log('Transform complete:', {
-      status: 'success',
+    console.log("Transform complete:", {
+      status: "success",
       activeVersion: `portfoliosmedia_v${newVersion}`,
-      viewUpdated: 'portfoliosmedia_current'
+      viewUpdated: "portfoliosmedia_current",
     });
 
     return {
-      entity: 'portfoliosmedia',
+      entity: "portfoliosmedia",
       success: true,
-      version: newVersion
+      version: newVersion,
     };
-
   } catch (error) {
-    console.error('Transform error details:', error);
+    console.error("Transform error details:", error);
     return {
-      entity: 'portfoliosmedia',
+      entity: "portfoliosmedia",
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -537,19 +545,19 @@ async function transformPortfoliosMedia(): Promise<TransformResult> {
 async function transformMediaTags(): Promise<TransformResult> {
   try {
     const latestJson = await prisma.mediaTagsJson.findFirst({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     if (!latestJson) {
-      throw new Error('No JSON data found for mediatags');
+      throw new Error("No JSON data found for mediatags");
     }
 
-    const { newVersion, oldVersion } = await getNextVersion('mediatags');
+    const { newVersion, oldVersion } = await getNextVersion("mediatags");
 
-    console.log('Version transition:', {
-      operation: 'Starting transform',
+    console.log("Version transition:", {
+      operation: "Starting transform",
       targetVersion: `mediatags_v${newVersion}`,
-      previousVersion: oldVersion ? `mediatags_v${oldVersion}` : 'none'
+      previousVersion: oldVersion ? `mediatags_v${oldVersion}` : "none",
     });
 
     await prisma.$transaction(async (tx) => {
@@ -564,17 +572,20 @@ async function transformMediaTags(): Promise<TransformResult> {
 
       // Extract unique tags
       const uniqueTags = new Map<string, MediaTag>();
-      mediaTagsData.forEach(item => {
+      mediaTagsData.forEach((item) => {
         item.tags.forEach((tag: MediaTag) => {
           uniqueTags.set(tag.id, tag);
         });
       });
 
-      console.log('Data operation:', {
-        action: 'Inserting tags and relationships',
+      console.log("Data operation:", {
+        action: "Inserting tags and relationships",
         targetTable,
         uniqueTagCount: uniqueTags.size,
-        totalRelationships: mediaTagsData.reduce((sum, item) => sum + item.tags.length, 0)
+        totalRelationships: mediaTagsData.reduce(
+          (sum, item) => sum + item.tags.length,
+          0,
+        ),
       });
 
       // Insert unique tags
@@ -597,34 +608,36 @@ async function transformMediaTags(): Promise<TransformResult> {
         }
       }
 
-      console.log('Version update:', {
-        action: 'Updating views and metadata',
+      console.log("Version update:", {
+        action: "Updating views and metadata",
         newActiveVersion: `mediatags_v${newVersion}`,
-        newBackupVersion: `mediatags_v${oldVersion ?? 0}`
+        newBackupVersion: `mediatags_v${oldVersion ?? 0}`,
       });
 
-      await updateVersionAndViews(tx, 'mediatags', { newVersion, oldVersion });
-      await updateVersionAndViews(tx, 'mediatags_junction', { newVersion, oldVersion });
+      await updateVersionAndViews(tx, "mediatags", { newVersion, oldVersion });
+      await updateVersionAndViews(tx, "mediatags_junction", {
+        newVersion,
+        oldVersion,
+      });
     });
 
-    console.log('Transform complete:', {
-      status: 'success',
+    console.log("Transform complete:", {
+      status: "success",
       activeVersion: `mediatags_v${newVersion}`,
-      viewUpdated: ['mediatags_current', 'mediatags_junction_current']
+      viewUpdated: ["mediatags_current", "mediatags_junction_current"],
     });
 
     return {
-      entity: 'mediatags',
+      entity: "mediatags",
       success: true,
-      version: newVersion
+      version: newVersion,
     };
-
   } catch (error) {
-    console.error('Transform error details:', error);
+    console.error("Transform error details:", error);
     return {
-      entity: 'mediatags',
+      entity: "mediatags",
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -632,19 +645,19 @@ async function transformMediaTags(): Promise<TransformResult> {
 async function transformTalents(): Promise<TransformResult> {
   try {
     const latestJson = await prisma.talentsJson.findFirst({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     if (!latestJson) {
-      throw new Error('No JSON data found for talents');
+      throw new Error("No JSON data found for talents");
     }
 
-    const { newVersion, oldVersion } = await getNextVersion('talents');
+    const { newVersion, oldVersion } = await getNextVersion("talents");
 
-    console.log('Version transition:', {
-      operation: 'Starting transform',
+    console.log("Version transition:", {
+      operation: "Starting transform",
       targetVersion: `talents_v${newVersion}`,
-      previousVersion: oldVersion ? `talents_v${oldVersion}` : 'none'
+      previousVersion: oldVersion ? `talents_v${oldVersion}` : "none",
     });
 
     await prisma.$transaction(async (tx) => {
@@ -655,10 +668,10 @@ async function transformTalents(): Promise<TransformResult> {
 
       const talents = latestJson.data as unknown as Talent[];
 
-      console.log('Data operation:', {
-        action: 'Inserting talents',
+      console.log("Data operation:", {
+        action: "Inserting talents",
         targetTable,
-        recordCount: talents.length
+        recordCount: talents.length,
       });
 
       // Insert talent records
@@ -679,33 +692,32 @@ async function transformTalents(): Promise<TransformResult> {
         `;
       }
 
-      console.log('Version update:', {
-        action: 'Updating view and metadata',
+      console.log("Version update:", {
+        action: "Updating view and metadata",
         newActiveVersion: `talents_v${newVersion}`,
-        newBackupVersion: `talents_v${oldVersion ?? 0}`
+        newBackupVersion: `talents_v${oldVersion ?? 0}`,
       });
 
-      await updateVersionAndViews(tx, 'talents', { newVersion, oldVersion });
+      await updateVersionAndViews(tx, "talents", { newVersion, oldVersion });
     });
 
-    console.log('Transform complete:', {
-      status: 'success',
+    console.log("Transform complete:", {
+      status: "success",
       activeVersion: `talents_v${newVersion}`,
-      viewUpdated: 'talents_current'
+      viewUpdated: "talents_current",
     });
 
     return {
-      entity: 'talents',
+      entity: "talents",
       success: true,
-      version: newVersion
+      version: newVersion,
     };
-
   } catch (error) {
-    console.error('Transform error details:', error);
+    console.error("Transform error details:", error);
     return {
-      entity: 'talents',
+      entity: "talents",
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -713,19 +725,20 @@ async function transformTalents(): Promise<TransformResult> {
 async function transformTalentsPortfolios(): Promise<TransformResult> {
   try {
     const latestJson = await prisma.talentsPortfoliosJson.findFirst({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     if (!latestJson) {
-      throw new Error('No JSON data found for talentsportfolios');
+      throw new Error("No JSON data found for talentsportfolios");
     }
 
-    const { newVersion, oldVersion } = await getNextVersion('talentsportfolios');
+    const { newVersion, oldVersion } =
+      await getNextVersion("talentsportfolios");
 
-    console.log('Version transition:', {
-      operation: 'Starting transform',
+    console.log("Version transition:", {
+      operation: "Starting transform",
       targetVersion: `talentsportfolios_v${newVersion}`,
-      previousVersion: oldVersion ? `talentsportfolios_v${oldVersion}` : 'none'
+      previousVersion: oldVersion ? `talentsportfolios_v${oldVersion}` : "none",
     });
 
     await prisma.$transaction(async (tx) => {
@@ -736,11 +749,14 @@ async function transformTalentsPortfolios(): Promise<TransformResult> {
 
       const talentsPortfolios = latestJson.data as unknown as TalentPortfolio[];
 
-      console.log('Data operation:', {
-        action: 'Inserting portfolios',
+      console.log("Data operation:", {
+        action: "Inserting portfolios",
         targetTable,
         talentCount: talentsPortfolios.length,
-        totalPortfolios: talentsPortfolios.reduce((sum, t) => sum + t.portfolios.length, 0)
+        totalPortfolios: talentsPortfolios.reduce(
+          (sum, t) => sum + t.portfolios.length,
+          0,
+        ),
       });
 
       // Insert portfolio records
@@ -762,33 +778,35 @@ async function transformTalentsPortfolios(): Promise<TransformResult> {
         }
       }
 
-      console.log('Version update:', {
-        action: 'Updating view and metadata',
+      console.log("Version update:", {
+        action: "Updating view and metadata",
         newActiveVersion: `talentsportfolios_v${newVersion}`,
-        newBackupVersion: `talentsportfolios_v${oldVersion ?? 0}`
+        newBackupVersion: `talentsportfolios_v${oldVersion ?? 0}`,
       });
 
-      await updateVersionAndViews(tx, 'talentsportfolios', { newVersion, oldVersion });
+      await updateVersionAndViews(tx, "talentsportfolios", {
+        newVersion,
+        oldVersion,
+      });
     });
 
-    console.log('Transform complete:', {
-      status: 'success',
+    console.log("Transform complete:", {
+      status: "success",
       activeVersion: `talentsportfolios_v${newVersion}`,
-      viewUpdated: 'talentsportfolios_current'
+      viewUpdated: "talentsportfolios_current",
     });
 
     return {
-      entity: 'talentsportfolios',
+      entity: "talentsportfolios",
       success: true,
-      version: newVersion
+      version: newVersion,
     };
-
   } catch (error) {
-    console.error('Transform error details:', error);
+    console.error("Transform error details:", error);
     return {
-      entity: 'talentsportfolios',
+      entity: "talentsportfolios",
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -796,19 +814,23 @@ async function transformTalentsPortfolios(): Promise<TransformResult> {
 async function transformTalentsMeasurements(): Promise<TransformResult> {
   try {
     const latestJson = await prisma.talentsMeasurementsJson.findFirst({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     if (!latestJson) {
-      throw new Error('No JSON data found for talentsmeasurements');
+      throw new Error("No JSON data found for talentsmeasurements");
     }
 
-    const { newVersion, oldVersion } = await getNextVersion('talentsmeasurements');
+    const { newVersion, oldVersion } = await getNextVersion(
+      "talentsmeasurements",
+    );
 
-    console.log('Version transition:', {
-      operation: 'Starting transform',
+    console.log("Version transition:", {
+      operation: "Starting transform",
       targetVersion: `talentsmeasurements_v${newVersion}`,
-      previousVersion: oldVersion ? `talentsmeasurements_v${oldVersion}` : 'none'
+      previousVersion: oldVersion
+        ? `talentsmeasurements_v${oldVersion}`
+        : "none",
     });
 
     await prisma.$transaction(async (tx) => {
@@ -817,13 +839,16 @@ async function transformTalentsMeasurements(): Promise<TransformResult> {
       // Clear the target table first
       await tx.$executeRawUnsafe(`DELETE FROM "${targetTable}"`);
 
-      const talentsMeasurements = latestJson.data as unknown as TalentMeasurement[];
+      const talentsMeasurements =
+        latestJson.data as unknown as TalentMeasurement[];
 
-      console.log('Data operation:', {
-        action: 'Inserting measurements',
+      console.log("Data operation:", {
+        action: "Inserting measurements",
         targetTable,
         talentCount: talentsMeasurements.length,
-        measurementsCount: talentsMeasurements.filter(t => t.measurements !== null).length
+        measurementsCount: talentsMeasurements.filter(
+          (t) => t.measurements !== null,
+        ).length,
       });
 
       // Insert measurements records
@@ -858,33 +883,35 @@ async function transformTalentsMeasurements(): Promise<TransformResult> {
         }
       }
 
-      console.log('Version update:', {
-        action: 'Updating view and metadata',
+      console.log("Version update:", {
+        action: "Updating view and metadata",
         newActiveVersion: `talentsmeasurements_v${newVersion}`,
-        newBackupVersion: `talentsmeasurements_v${oldVersion ?? 0}`
+        newBackupVersion: `talentsmeasurements_v${oldVersion ?? 0}`,
       });
 
-      await updateVersionAndViews(tx, 'talentsmeasurements', { newVersion, oldVersion });
+      await updateVersionAndViews(tx, "talentsmeasurements", {
+        newVersion,
+        oldVersion,
+      });
     });
 
-    console.log('Transform complete:', {
-      status: 'success',
+    console.log("Transform complete:", {
+      status: "success",
       activeVersion: `talentsmeasurements_v${newVersion}`,
-      viewUpdated: 'talentsmeasurements_current'
+      viewUpdated: "talentsmeasurements_current",
     });
 
     return {
-      entity: 'talentsmeasurements',
+      entity: "talentsmeasurements",
       success: true,
-      version: newVersion
+      version: newVersion,
     };
-
   } catch (error) {
-    console.error('Transform error details:', error);
+    console.error("Transform error details:", error);
     return {
-      entity: 'talentsmeasurements',
+      entity: "talentsmeasurements",
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -892,19 +919,19 @@ async function transformTalentsMeasurements(): Promise<TransformResult> {
 async function transformTalentsSocials(): Promise<TransformResult> {
   try {
     const latestJson = await prisma.talentsSocialsJson.findFirst({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     if (!latestJson) {
-      throw new Error('No JSON data found for talentssocials');
+      throw new Error("No JSON data found for talentssocials");
     }
 
-    const { newVersion, oldVersion } = await getNextVersion('talentssocials');
+    const { newVersion, oldVersion } = await getNextVersion("talentssocials");
 
-    console.log('Version transition:', {
-      operation: 'Starting transform',
+    console.log("Version transition:", {
+      operation: "Starting transform",
       targetVersion: `talentssocials_v${newVersion}`,
-      previousVersion: oldVersion ? `talentssocials_v${oldVersion}` : 'none'
+      previousVersion: oldVersion ? `talentssocials_v${oldVersion}` : "none",
     });
 
     await prisma.$transaction(async (tx) => {
@@ -915,11 +942,14 @@ async function transformTalentsSocials(): Promise<TransformResult> {
 
       const talentsSocials = latestJson.data as unknown as TalentSocial[];
 
-      console.log('Data operation:', {
-        action: 'Inserting socials',
+      console.log("Data operation:", {
+        action: "Inserting socials",
         targetTable,
         talentCount: talentsSocials.length,
-        totalSocials: talentsSocials.reduce((sum, t) => sum + t.socials.length, 0)
+        totalSocials: talentsSocials.reduce(
+          (sum, t) => sum + t.socials.length,
+          0,
+        ),
       });
 
       // Insert social records
@@ -939,33 +969,35 @@ async function transformTalentsSocials(): Promise<TransformResult> {
         }
       }
 
-      console.log('Version update:', {
-        action: 'Updating view and metadata',
+      console.log("Version update:", {
+        action: "Updating view and metadata",
         newActiveVersion: `talentssocials_v${newVersion}`,
-        newBackupVersion: `talentssocials_v${oldVersion ?? 0}`
+        newBackupVersion: `talentssocials_v${oldVersion ?? 0}`,
       });
 
-      await updateVersionAndViews(tx, 'talentssocials', { newVersion, oldVersion });
+      await updateVersionAndViews(tx, "talentssocials", {
+        newVersion,
+        oldVersion,
+      });
     });
 
-    console.log('Transform complete:', {
-      status: 'success',
+    console.log("Transform complete:", {
+      status: "success",
       activeVersion: `talentssocials_v${newVersion}`,
-      viewUpdated: 'talentssocials_current'
+      viewUpdated: "talentssocials_current",
     });
 
     return {
-      entity: 'talentssocials',
+      entity: "talentssocials",
       success: true,
-      version: newVersion
+      version: newVersion,
     };
-
   } catch (error) {
-    console.error('Transform error details:', error);
+    console.error("Transform error details:", error);
     return {
-      entity: 'talentssocials',
+      entity: "talentssocials",
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -980,7 +1012,9 @@ export const transformAllData = task({
     results.push(talentsResult);
 
     if (!talentsResult.success) {
-      throw new Error(`Transform failed for ${talentsResult.entity}: ${talentsResult.error}`);
+      throw new Error(
+        `Transform failed for ${talentsResult.entity}: ${talentsResult.error}`,
+      );
     }
 
     // Transform talents measurements
@@ -988,7 +1022,9 @@ export const transformAllData = task({
     results.push(talentsMeasurementsResult);
 
     if (!talentsMeasurementsResult.success) {
-      throw new Error(`Transform failed for ${talentsMeasurementsResult.entity}: ${talentsMeasurementsResult.error}`);
+      throw new Error(
+        `Transform failed for ${talentsMeasurementsResult.entity}: ${talentsMeasurementsResult.error}`,
+      );
     }
 
     // Transform talents portfolios next since media depends on it
@@ -996,7 +1032,9 @@ export const transformAllData = task({
     results.push(talentsPortfoliosResult);
 
     if (!talentsPortfoliosResult.success) {
-      throw new Error(`Transform failed for ${talentsPortfoliosResult.entity}: ${talentsPortfoliosResult.error}`);
+      throw new Error(
+        `Transform failed for ${talentsPortfoliosResult.entity}: ${talentsPortfoliosResult.error}`,
+      );
     }
 
     // Transform boards first
@@ -1004,7 +1042,9 @@ export const transformAllData = task({
     results.push(boardsResult);
 
     if (!boardsResult.success) {
-      throw new Error(`Transform failed for ${boardsResult.entity}: ${boardsResult.error}`);
+      throw new Error(
+        `Transform failed for ${boardsResult.entity}: ${boardsResult.error}`,
+      );
     }
 
     // Transform boardstalents next
@@ -1012,7 +1052,9 @@ export const transformAllData = task({
     results.push(boardsTalentsResult);
 
     if (!boardsTalentsResult.success) {
-      throw new Error(`Transform failed for ${boardsTalentsResult.entity}: ${boardsTalentsResult.error}`);
+      throw new Error(
+        `Transform failed for ${boardsTalentsResult.entity}: ${boardsTalentsResult.error}`,
+      );
     }
 
     // Transform boardsportfolios
@@ -1020,7 +1062,9 @@ export const transformAllData = task({
     results.push(boardsPortfoliosResult);
 
     if (!boardsPortfoliosResult.success) {
-      throw new Error(`Transform failed for ${boardsPortfoliosResult.entity}: ${boardsPortfoliosResult.error}`);
+      throw new Error(
+        `Transform failed for ${boardsPortfoliosResult.entity}: ${boardsPortfoliosResult.error}`,
+      );
     }
 
     // Transform portfolios media
@@ -1028,7 +1072,9 @@ export const transformAllData = task({
     results.push(portfoliosMediaResult);
 
     if (!portfoliosMediaResult.success) {
-      throw new Error(`Transform failed for ${portfoliosMediaResult.entity}: ${portfoliosMediaResult.error}`);
+      throw new Error(
+        `Transform failed for ${portfoliosMediaResult.entity}: ${portfoliosMediaResult.error}`,
+      );
     }
 
     // Transform media tags
@@ -1036,7 +1082,9 @@ export const transformAllData = task({
     results.push(mediaTagsResult);
 
     if (!mediaTagsResult.success) {
-      throw new Error(`Transform failed for ${mediaTagsResult.entity}: ${mediaTagsResult.error}`);
+      throw new Error(
+        `Transform failed for ${mediaTagsResult.entity}: ${mediaTagsResult.error}`,
+      );
     }
 
     // Transform talents socials
@@ -1044,12 +1092,14 @@ export const transformAllData = task({
     results.push(talentsSocialsResult);
 
     if (!talentsSocialsResult.success) {
-      throw new Error(`Transform failed for ${talentsSocialsResult.entity}: ${talentsSocialsResult.error}`);
+      throw new Error(
+        `Transform failed for ${talentsSocialsResult.entity}: ${talentsSocialsResult.error}`,
+      );
     }
 
     return {
       success: true,
-      transformedEntities: results
+      transformedEntities: results,
     };
-  }
+  },
 });

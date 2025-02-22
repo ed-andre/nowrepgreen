@@ -1,5 +1,6 @@
-import { task } from "@trigger.dev/sdk/v3";
 import { PrismaClient } from "@prisma/client";
+import { task } from "@trigger.dev/sdk/v3";
+
 import { API_CONFIG } from "./config";
 
 const prisma = new PrismaClient();
@@ -12,55 +13,55 @@ interface EndpointConfig {
 
 const ENDPOINTS: EndpointConfig[] = [
   {
-    name: 'boards',
+    name: "boards",
     endpoint: API_CONFIG.endpoints.boards,
-    model: prisma.boardsJson
+    model: prisma.boardsJson,
   },
   {
-    name: 'boardsTalents',
+    name: "boardsTalents",
     endpoint: API_CONFIG.endpoints.boardsTalents,
-    model: prisma.boardsTalentsJson
+    model: prisma.boardsTalentsJson,
   },
   {
-    name: 'boardsPortfolios',
+    name: "boardsPortfolios",
     endpoint: API_CONFIG.endpoints.boardsPortfolios,
-    model: prisma.boardsPortfoliosJson
+    model: prisma.boardsPortfoliosJson,
   },
   {
-    name: 'portfoliosMedia',
+    name: "portfoliosMedia",
     endpoint: API_CONFIG.endpoints.portfoliosMedia,
-    model: prisma.portfoliosMediaJson
+    model: prisma.portfoliosMediaJson,
   },
   {
-    name: 'talents',
+    name: "talents",
     endpoint: API_CONFIG.endpoints.talents,
-    model: prisma.talentsJson
+    model: prisma.talentsJson,
   },
   {
-    name: 'talentsPortfolios',
+    name: "talentsPortfolios",
     endpoint: API_CONFIG.endpoints.talentsPortfolios,
-    model: prisma.talentsPortfoliosJson
+    model: prisma.talentsPortfoliosJson,
   },
   {
-    name: 'talentsMeasurements',
+    name: "talentsMeasurements",
     endpoint: API_CONFIG.endpoints.talentsMeasurements,
-    model: prisma.talentsMeasurementsJson
+    model: prisma.talentsMeasurementsJson,
   },
   {
-    name: 'talentsSocials',
+    name: "talentsSocials",
     endpoint: API_CONFIG.endpoints.talentsSocials,
-    model: prisma.talentsSocialsJson
+    model: prisma.talentsSocialsJson,
   },
   {
-    name: 'mediaTags',
+    name: "mediaTags",
     endpoint: API_CONFIG.endpoints.mediaTags,
-    model: prisma.mediaTagsJson
-  }
+    model: prisma.mediaTagsJson,
+  },
 ];
 
 async function cleanOldRecords(model: any) {
   const records = await model.findMany({
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: "desc" },
     skip: 3,
   });
 
@@ -68,9 +69,9 @@ async function cleanOldRecords(model: any) {
     await model.deleteMany({
       where: {
         id: {
-          in: records.map((r: any) => r.id)
-        }
-      }
+          in: records.map((r: any) => r.id),
+        },
+      },
     });
   }
 }
@@ -85,20 +86,20 @@ async function fetchAndStoreData(config: EndpointConfig) {
     const data = await response.json();
     await config.model.create({
       data: {
-        data: data.data
-      }
+        data: data.data,
+      },
     });
     await cleanOldRecords(config.model);
 
     return {
       name: config.name,
-      success: true
+      success: true,
     };
   } catch (error) {
     return {
       name: config.name,
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -111,22 +112,20 @@ export const syncAllJson = task({
     maxTimeoutInMs: 10000,
   },
   run: async () => {
-    const results = await Promise.all(
-      ENDPOINTS.map(fetchAndStoreData)
-    );
+    const results = await Promise.all(ENDPOINTS.map(fetchAndStoreData));
 
-    const failures = results.filter(result => !result.success);
+    const failures = results.filter((result) => !result.success);
     if (failures.length > 0) {
       throw new Error(
-        `Failed to sync: ${failures.map(f =>
-          `${f.name} (${f.error})`
-        ).join(', ')}`
+        `Failed to sync: ${failures
+          .map((f) => `${f.name} (${f.error})`)
+          .join(", ")}`,
       );
     }
 
     return {
       success: true,
-      syncedEndpoints: results.map(r => r.name)
+      syncedEndpoints: results.map((r) => r.name),
     };
-  }
+  },
 });
