@@ -13,6 +13,12 @@ interface TaskError extends SubtaskUnwrapError {
   attemptNumber?: number;
 }
 
+// Debug environment variables
+// console.log('Debug: Environment variables in orchestrator task:', {
+//   TRIGGER_API_KEY: process.env.TRIGGER_API_KEY?.slice(0, 10) + '...',
+//   NODE_ENV: process.env.NODE_ENV
+// });
+
 export const orchestrateSyncTask = task({
   id: "orchestrate-sync",
   run: async () => {
