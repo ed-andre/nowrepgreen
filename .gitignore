@@ -39,3 +39,4 @@ yarn-error.log*
 
 # React Router
 /.react-router/
+.cursor/rules/nowrep-custom-rules.mdc

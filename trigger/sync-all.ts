@@ -1,9 +1,7 @@
-import { PrismaClient } from "@prisma/client";
 import { task } from "@trigger.dev/sdk/v3";
 
 import { API_CONFIG } from "./config";
-
-const prisma = new PrismaClient();
+import { prisma } from "./db.server";
 
 interface EndpointConfig {
   name: string;

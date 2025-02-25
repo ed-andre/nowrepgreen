@@ -14,6 +14,7 @@ NowRepGreen is part of the NowRep ecosystem, focusing specifically on the public
 ## Technical Architecture
 
 ### Tech Stack
+
 - **Framework**: React Router with TypeScript
 - **Styling**: TailwindCSS
 - **Database**: Prisma ORM with SQLite
@@ -48,11 +49,13 @@ graph TD
 ### Sync Process Flow
 
 1. **JSON Data Collection**
+
    - Trigger.dev task fetches data from multiple endpoints on a schedule or via manual trigger
    - Data is stored in JSON stage tables (e.g., `BoardsJson`, `TalentsJson`)
    - Each sync maintains last 3 versions for rollback capability
 
 2. **Data Transformation**
+
    - Raw JSON data is transformed into normalized relational structure
    - Handles complex relationships (e.g., Boards-Talents, Talents-Portfolios)
    - Maintains data integrity through foreign key relationships
@@ -62,7 +65,6 @@ graph TD
    - Active version alternates between v1 and v2
    - Current views automatically point to active version
    - Zero-downtime updates through atomic view switching
-
 
 ### Entity Relationships
 
@@ -108,6 +110,7 @@ The project follows a comprehensive testing approach:
 3. **E2E Tests**: Critical user journeys (not implemented yet)
 
 Run the test suite with coverage reporting:
+
 ```bash
 npm run test:coverage
 ```
@@ -115,6 +118,7 @@ npm run test:coverage
 ## Database Setup
 
 The application uses Prisma with SQLite, demonstrating:
+
 - Advanced schema design with versioning
 - Efficient indexing strategies
 - Type-safe database queries
@@ -156,7 +160,7 @@ The data synchronization is triggered through an API endpoint that NowRepBlue ca
      return await tasks.trigger<typeof orchestrateSyncTask>(
        "orchestrate-sync",
        undefined,
-       {}
+       {},
      );
    }
    ```
@@ -164,6 +168,7 @@ The data synchronization is triggered through an API endpoint that NowRepBlue ca
 The orchestrator then manages two main tasks:
 
 1. **JSON Sync Task** (`sync-all-json`)
+
    ```typescript
    // Triggered by the orchestrator when source data changes
    export const syncAllJson = task({
@@ -172,7 +177,7 @@ The orchestrator then manages two main tasks:
        maxAttempts: 3,
        minTimeoutInMs: 1000,
        maxTimeoutInMs: 10000,
-     }
+     },
    });
    ```
 
@@ -180,13 +185,14 @@ The orchestrator then manages two main tasks:
    ```typescript
    // Triggered after successful JSON sync
    export const transformAllData = task({
-     id: "transform-all-data"
+     id: "transform-all-data",
    });
    ```
 
 ### Task Monitoring
 
 Monitor task execution through the Trigger.dev CLI:
+
 ```bash
 npx @trigger.dev/cli@latest dev
 ```
@@ -196,6 +202,7 @@ Or access trigger.dev account online
 ## Code Quality
 
 Maintain code quality by running:
+
 ```bash
 npm run lint      # Check for code issues
 npm run lint:fix  # Auto-fix code issues

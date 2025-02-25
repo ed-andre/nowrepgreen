@@ -2,134 +2,171 @@
 
 ## System Overview
 
-NowRepGreen maintains a local copy of NowRepBlue data through scheduled synchronization tasks, transforming JSON API responses into normalized relational data.
+NowRepGreen maintains a local copy of NowRepBlue data through an event-driven synchronization system, transforming JSON API responses into normalized relational data. The system is designed for reliability, zero-downtime updates, and automatic recovery.
 
 ## Architecture
 
 ### 1. Data Flow
 
-NowRepBlue API → JSON Storage → Data Transformation → Normalized Tables → Web App Queries
+```mermaid
+graph TD
+    A[NowRepBlue API] -->|Trigger.dev Task| B[sync-all-json Task]
+    B -->|Store Raw JSON| C[JSON Stage Tables]
+    C -->|Trigger.dev Task| D[transform-all-data Task]
+    D -->|Transform & Version| E[Versioned Tables v1/v2]
+    E -->|Dynamic View Switch| F[Current Views]
+    F -->|Serve Data| G[NowRepGreen Application]
 
-### 2. Components
+    subgraph "Data Storage"
+    C
+    E
+    F
+    end
 
-- **Consolidated Sync Task**: Single task to fetch and store raw JSON from all API endpoints
-- **Consolidated Transform Task**: Single task to convert all JSON to normalized structure
-- **Version Manager**: Maintain table versions and views
-- **Cleanup Process**: Remove outdated versions
+    subgraph "Transformation Process"
+    B
+    D
+    end
+```
 
-### 3. Database Structure
+### 2. Entity Relationships
+
+```mermaid
+erDiagram
+    Boards ||--o{ BoardsTalents : contains
+    Boards ||--o{ BoardsPortfolios : contains
+    Talents ||--o{ BoardsTalents : belongs_to
+    Talents ||--o{ TalentsPortfolios : owns
+    TalentsPortfolios ||--o{ PortfoliosMedia : contains
+    PortfoliosMedia ||--o{ MediaTags : tagged_with
+    Talents ||--o{ TalentsMeasurements : has
+    Talents ||--o{ TalentsSocials : has
+```
+
+### 3. Components
+
+- **API Endpoint** (`/api/internal/orchestrate-sync`): Receives sync triggers from NowRepBlue
+- **Sync Task**: Fetches and stores raw JSON from all API endpoints
+- **Transform Task**: Converts JSON to normalized relational structure
+- **Version Manager**: Maintains table versions and views
+- **Cleanup Process**: Removes outdated versions
+
+### 4. Database Structure
 
 #### Storage Tables
 
 - `{entity}_json`: Raw JSON storage (keeps last 3 versions)
-- `{entity}_v{n}`: Normalized data tables
+- `{entity}_v{n}`: Normalized data tables (v1, v2)
 - `{entity}_current`: Views pointing to active version
 - `sync_metadata`: Tracks active and backup versions
 
-### 4. Implementation Guide
+### 5. Implementation Guide
 
 #### A. Task Structure
 
-1. Create three main tasks in `trigger/tasks.ts`:
+1. **Orchestration Endpoint** (`/api/internal/orchestrate-sync`):
 
-   - `syncAllJson`: Fetches and stores JSON from all endpoints
-   - `transformAllData`: Processes all JSON into versioned tables
-   - `orchestrateSync`: Manages the sync lifecycle and metadata
+   ```typescript
+   export async function action({ request }: ActionFunctionArgs) {
+     validateSecretKey(request);
+     return await tasks.trigger<typeof orchestrateSyncTask>(
+       "orchestrate-sync",
+       undefined,
+       {},
+     );
+   }
+   ```
 
-2. Each task handles:
+2. **JSON Sync Task** (`sync-all-json`):
 
-   - **syncAllJson**:
+   ```typescript
+   export const syncAllJson = task({
+     id: "sync-all-json",
+     retry: {
+       maxAttempts: 3,
+       minTimeoutInMs: 1000,
+       maxTimeoutInMs: 10000,
+     },
+   });
+   ```
 
-     - Fetches data from all API endpoints
-     - Stores in respective entity_json tables
-     - Reports success/failure per endpoint
-     - Handles non-critical failures gracefully
-
-   - **transformAllData**:
-
-     - Processes all JSON tables in correct dependency order
-     - Creates new versioned tables
-     - Maintains referential integrity
-     - Reports transformation status
-
-   - **orchestrateSync**:
-     - Chains sync and transform tasks
-     - Updates metadata and views
-     - Manages version cleanup
-     - Handles rollback scenarios
+3. **Transform Task** (`transform-all-data`):
+   ```typescript
+   export const transformAllData = task({
+     id: "transform-all-data",
+   });
+   ```
 
 #### B. Version Management
 
-1. Create version manager in `trigger/version-manager.ts` with functions for:
-   - Getting next version number
-   - Updating metadata and views
-   - Cleaning up old versions
-2. Version numbering:
-   - Increment from current active version
-   - Keep last 2 versions (active + backup)
-   - Start from version 1 if no previous versions
+1. Version Control:
 
-#### C. Data Transformation Process
+   - Each entity maintains v1 and v2 tables
+   - Active version alternates between v1 and v2
+   - Current views automatically point to active version
+   - Zero-downtime updates through atomic view switching
 
-1. Create type-safe transformation functions for each entity
-2. Handle required fields and data type conversions
-3. Maintain referential integrity
-4. Use transactions for atomic operations
-5. Implement proper error handling
+2. Version Tracking:
+   ```typescript
+   async function getNextVersion(entity: string) {
+     const current = await prisma.syncMetadata.findFirst({
+       where: { entityName: entity },
+     });
+     return {
+       newVersion: current?.activeVersion === 1 ? 2 : 1,
+       oldVersion: current?.activeVersion,
+     };
+   }
+   ```
 
-### 5. Transformation Order
+### 6. Transformation Order
 
-1. Transform independent entities first:
-
-   - TalentTypes
-   - MediaTags
-   - PortfolioCategories
-
-2. Transform primary entities:
+1. Independent Entities:
 
    - Talents
    - Boards
+   - MediaTags
 
-3. Transform dependent entities:
+2. Dependent Entities:
 
-   - Portfolios
-   - PortfolioMedia
+   - TalentsPortfolios
+   - PortfoliosMedia
+   - TalentsMeasurements
+   - TalentsSocials
 
-4. Transform junction tables:
+3. Junction Tables:
    - BoardsTalents
    - BoardsPortfolios
    - MediaTags_Junction
 
-### 6. Error Handling
+### 7. Error Handling
 
-- Transaction-based atomic operations for related data
+- Transaction-based atomic operations
+- Retry mechanism for sync tasks
+- Validation of sync secret key
 - Granular error reporting per entity
-- Critical vs non-critical failure handling
-- Partial success scenarios management
-- Automated rollback for failed transformations
+- Automatic rollback capability
 
-### 7. Testing Strategy
+### 8. Security
 
-1. Create test JSON data fixtures
-2. Verify transformation logic
-3. Test version management
-4. Validate view updates
-5. Check cleanup process
-6. Confirm rollback functionality
+- SYNC_SECRET_KEY validation for all sync triggers
+- Environment-based configuration
+- Secure API endpoints
 
-### 8. Best Practices
+### 9. Monitoring
 
-- Use TypeScript interfaces for type safety
-- Implement proper error handling
-- Keep transformations idempotent
-- Use transactions for atomic operations
-- Validate data before and after transformation
-- Log all operations for debugging
-- Handle null/undefined values gracefully
+Monitor sync process through:
+
+```bash
+npx @trigger.dev/cli@latest dev
+```
+
+Or access trigger.dev dashboard online
 
 ## Implementation Notes
 
-- Using SQLite as database
-- All media assets referenced via CDN
-- Static website serving transformed data
+- Using SQLite for data storage
+- All media assets referenced via URLs
 - Zero-downtime updates via view switching
+- Type-safe transformations using TypeScript
+- Automated cleanup of old JSON versions

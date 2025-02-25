@@ -1,8 +1,8 @@
 import { createId } from "@paralleldrive/cuid2";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { task } from "@trigger.dev/sdk/v3";
 
-const prisma = new PrismaClient();
+import { prisma } from "./db.server";
 
 interface TransformResult {
   entity: string;

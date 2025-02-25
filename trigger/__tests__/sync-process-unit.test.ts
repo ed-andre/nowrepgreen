@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { PrismaClient, Prisma } from "@prisma/client";
 import { API_CONFIG } from "../config";
+import { prisma } from "../../app/db.server";
 
 type JsonTable = {
   findMany: ReturnType<typeof vi.fn>;
@@ -61,24 +62,26 @@ describe("Data Transformation Unit Tests", () => {
       "boardsTalents",
       "boardsPortfolios",
       "talentsPortfolios",
-      "mediaTagsJunction"
+      "mediaTagsJunction",
     ];
 
-    tables.forEach(entityName => {
+    tables.forEach((entityName) => {
       it(`should handle view creation correctly for ${entityName}`, async () => {
         const newVersion = 2;
 
-        await prisma.$executeRawUnsafe(`DROP VIEW IF EXISTS "${entityName}_current"`);
         await prisma.$executeRawUnsafe(
-          `CREATE VIEW "${entityName}_current" AS SELECT * FROM "${entityName}_v${newVersion}"`
+          `DROP VIEW IF EXISTS "${entityName}_current"`,
+        );
+        await prisma.$executeRawUnsafe(
+          `CREATE VIEW "${entityName}_current" AS SELECT * FROM "${entityName}_v${newVersion}"`,
         );
 
         expect(prisma.$executeRawUnsafe).toHaveBeenCalledTimes(2);
         expect(prisma.$executeRawUnsafe).toHaveBeenCalledWith(
-          `DROP VIEW IF EXISTS "${entityName}_current"`
+          `DROP VIEW IF EXISTS "${entityName}_current"`,
         );
         expect(prisma.$executeRawUnsafe).toHaveBeenCalledWith(
-          `CREATE VIEW "${entityName}_current" AS SELECT * FROM "${entityName}_v${newVersion}"`
+          `CREATE VIEW "${entityName}_current" AS SELECT * FROM "${entityName}_v${newVersion}"`,
         );
       });
 
@@ -104,13 +107,19 @@ describe("Data Transformation Unit Tests", () => {
     const jsonTables: Array<{ name: string; mock: JsonTable }> = [
       { name: "boardsJson", mock: (prisma as any).boardsJson },
       { name: "talentsJson", mock: (prisma as any).talentsJson },
-      { name: "portfoliosMediaJson", mock: (prisma as any).portfoliosMediaJson },
+      {
+        name: "portfoliosMediaJson",
+        mock: (prisma as any).portfoliosMediaJson,
+      },
       { name: "mediaTagsJson", mock: (prisma as any).mediaTagsJson },
-      { name: "talentsMeasurementsJson", mock: (prisma as any).talentsMeasurementsJson },
-      { name: "talentsSocialsJson", mock: (prisma as any).talentsSocialsJson }
+      {
+        name: "talentsMeasurementsJson",
+        mock: (prisma as any).talentsMeasurementsJson,
+      },
+      { name: "talentsSocialsJson", mock: (prisma as any).talentsSocialsJson },
     ];
 
-    jsonTables.forEach(table => {
+    jsonTables.forEach((table) => {
       it(`should retain only recent records for ${table.name}`, async () => {
         type JsonRecord = {
           id: number;
@@ -120,9 +129,24 @@ describe("Data Transformation Unit Tests", () => {
         };
 
         const mockRecords: JsonRecord[] = [
-          { id: 4, createdAt: new Date("2024-01-04"), updatedAt: new Date("2024-01-04"), data: null },
-          { id: 3, createdAt: new Date("2024-01-03"), updatedAt: new Date("2024-01-03"), data: null },
-          { id: 2, createdAt: new Date("2024-01-02"), updatedAt: new Date("2024-01-02"), data: null },
+          {
+            id: 4,
+            createdAt: new Date("2024-01-04"),
+            updatedAt: new Date("2024-01-04"),
+            data: null,
+          },
+          {
+            id: 3,
+            createdAt: new Date("2024-01-03"),
+            updatedAt: new Date("2024-01-03"),
+            data: null,
+          },
+          {
+            id: 2,
+            createdAt: new Date("2024-01-02"),
+            updatedAt: new Date("2024-01-02"),
+            data: null,
+          },
         ];
 
         // Mock findMany to return only the 3 most recent records
