@@ -26,7 +26,7 @@ export function TalentSearch({
   searchInputRef,
 }: TalentSearchProps) {
   return (
-    <div className="w-full flex justify-center items-center py-8 absolute top-24 left-0 right-0 z-20">
+    <div className="w-full flex justify-center items-center py-8 absolute top-24 left-0 right-0 z-1">
       <div
         className={`transition-all duration-500 ease-in-out ${
           isFocused ? "scale-105" : ""

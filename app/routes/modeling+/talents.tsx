@@ -266,7 +266,7 @@ export default function TalentDirectory() {
       {/* Main content */}
       <div className="flex-grow flex flex-col md:flex-row w-full relative z-10 mt-32">
         {/* Sidebar - Made sticky */}
-        <div className="md:w-64 flex-shrink-0 md:fixed md:left-0 md:top-24 md:h-[calc(100vh-6rem)] md:overflow-y-auto md:px-6 md:py-4">
+        <div className="md:w-64 flex-shrink-0 md:fixed md:left-0 md:top-24 md:h-[calc(100vh-6rem)] md:overflow-y-auto px-6 md:py-4 md:box-border overflow-x-hidden">
           <SidebarMenu
             boards={allBoards}
             currentPath={location.pathname}
