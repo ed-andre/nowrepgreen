@@ -22,9 +22,10 @@
     "test:i:watch": "cross-env NODE_ENV=test dotenv -e .env.test -- vitest --config ./vitest.config.integration.ts",
     "test:i:ui": "cross-env NODE_ENV=test dotenv -e .env.test -- vitest --config ./vitest.config.integration.ts --ui --api 9527",
     "test:i:coverage": "cross-env NODE_ENV=test dotenv -e .env.test -- vitest run --config ./vitest.config.integration.ts --coverage",
-    "prisma:dev": "cross-env NODE_ENV=development prisma db push",
-    "prisma:test": "cross-env NODE_ENV=test prisma db push",
-    "prisma:prod": "cross-env NODE_ENV=production dotenv -e .env.production -- prisma db push"
+    "prisma:dev": "cross-env NODE_ENV=development dotenv -e .env.development -- prisma db push",
+    "prisma:test": "cross-env NODE_ENV=test dotenv -e .env.test -- prisma db push",
+    "prisma:prod": "cross-env NODE_ENV=production dotenv -e .env.production -- prisma db push",
+    "trigger": "npx trigger.dev@latest dev"
   },
   "prettier": {},
   "eslintIgnore": [

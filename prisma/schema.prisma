@@ -166,6 +166,7 @@ model Talents_v1 {
   id           String  @id
   firstName    String
   lastName     String
+  talentUserNumber Int  @unique
   bio          String? // HTML content
   profileImage String?
   gender       String?
@@ -180,6 +181,7 @@ model Talents_v2 {
   id           String  @id
   firstName    String
   lastName     String
+  talentUserNumber Int  @unique
   bio          String?
   profileImage String?
   gender       String?
@@ -195,6 +197,7 @@ model Talents_current {
   id           String  @id
   firstName    String
   lastName     String
+  talentUserNumber Int  @unique
   bio          String?
   profileImage String?
   gender       String?

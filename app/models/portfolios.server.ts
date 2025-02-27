@@ -7,23 +7,37 @@ export async function getTalentPortfolios(
   options?: {
     includeDefault?: boolean;
     onlyDefault?: boolean;
+    onlyNonDefault?: boolean;
   },
 ) {
-  return prisma.talentsPortfolios_current.findMany({
-    where: {
+  try {
+    const whereClause = {
       talentId,
       ...(options?.onlyDefault ? { isDefault: true } : {}),
       ...(options?.includeDefault === false ? { isDefault: false } : {}),
-    },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      isDefault: true,
-      category: true,
-      coverImage: true,
-    },
-  });
+      ...(options?.onlyNonDefault ? { isDefault: false } : {}),
+    };
+
+    const portfolios = await prisma.talentsPortfolios_current.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        isDefault: true,
+        category: true,
+        coverImage: true,
+      },
+    });
+
+    return portfolios;
+  } catch (error: unknown) {
+    console.error(
+      `❌ Error in getTalentPortfolios for talent ${talentId}:`,
+      error,
+    );
+    throw error;
+  }
 }
 
 export async function getPortfolioMedia(portfolioId: string) {

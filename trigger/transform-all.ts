@@ -71,6 +71,7 @@ interface Talent {
   id: string;
   firstName: string;
   lastName: string;
+  talentUserNumber: number;
   bio: string | null;
   profileImage: string | null;
   gender: string | null;
@@ -678,11 +679,12 @@ async function transformTalents(): Promise<TransformResult> {
       for (const talent of talents) {
         await tx.$executeRaw`
           INSERT INTO ${Prisma.raw(targetTable)}
-          (id, firstName, lastName, bio, profileImage, gender, pronouns, talentType)
+          (id, firstName, lastName, talentUserNumber, bio, profileImage, gender, pronouns, talentType)
           VALUES (
             ${talent.id},
             ${talent.firstName},
             ${talent.lastName},
+            ${talent.talentUserNumber},
             ${talent.bio},
             ${talent.profileImage},
             ${talent.gender},

@@ -11,6 +11,33 @@ NowRepGreen is part of the NowRep ecosystem, focusing specifically on the public
 - Media galleries and showreels
 - Portfolio organization and presentation
 
+## Sample Portfolio Site
+
+The repository includes a fully functional modeling agency portfolio site that demonstrates the capabilities of the NowRep ecosystem:
+
+### Key Features
+
+- **Interactive Homepage**: Dynamic board navigation with hover effects and smooth transitions
+- **Talent Directory**: Searchable talent listings organized by board categories
+- **Board Pages**: Curated collections of talents with portfolio previews
+- **Talent Profiles**: Detailed talent information with measurements, social links, and media galleries
+- **Responsive Design**: Optimized for all device sizes with tailored layouts
+
+### User Experience Highlights
+
+- **Animated Transitions**: Smooth page transitions and hover effects enhance the browsing experience
+- **Intuitive Navigation**: Consistent sidebar menu and header navigation across all pages
+- **Visual Focus**: Minimalist design puts the spotlight on talent imagery and portfolios
+- **Performance Optimized**: Fast loading times with image preloading and efficient rendering
+
+### Data Synchronization Showcase
+
+The sample site demonstrates the data synchronization between NowRepBlue (admin system) and NowRepGreen (public site):
+
+- Changes made in the admin system can be pushed automatically, on a schedule, or manually based on the configuration of the data sync job
+- Zero-downtime updates through the versioned table architecture
+- Consistent data presentation across all views
+
 ## Technical Architecture
 
 ### Tech Stack
@@ -20,8 +47,9 @@ NowRepGreen is part of the NowRep ecosystem, focusing specifically on the public
 - **Database**: Prisma ORM with SQLite
 - **Testing**: Vitest with React Testing Library
 - **Code Quality**: ESLint, Prettier, TypeScript
+- **Data sync**: Trigger.dev
 
-## Data Synchronization Architecture
+## Data Pipeline Synchronization Architecture
 
 The platform implements a sophisticated data synchronization system designed for reliability and zero-downtime updates:
 

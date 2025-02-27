@@ -40,11 +40,12 @@ Create utilities in `app/models` to query versioned views:
 ```
 app/
 ├── routes/
-│   ├── _index.tsx        # Boards listing
-│   ├── boards.$boardId/
-│   │   └── index.tsx     # Talents in board
-│   └── talents.$talentId/
-│       └── index.tsx     # Talent portfolio
+│   ├── modeling+/
+│   │   ├── _index.tsx        # Boards listing
+│   │   ├── boards.$boardId/
+│   │   │   └── index.tsx     # Talents in board
+│   │   └── talents.$talentId/
+│   │       └── index.tsx     # Talent portfolio
 ```
 
 ### 2. Component Hierarchy
@@ -58,12 +59,15 @@ app/
 
 ### 3. UI Components Needed
 
-- ImageCard (reusable for boards/talents)
-- MeasurementsDisplay
-- MediaGrid
-- LightboxWrapper
-- LoadingStates
-- ErrorBoundaries
+- BoardCard (for displaying board thumbnails on homepage)
+- ModelCard (for displaying model thumbnails with measurements)
+- MeasurementsDisplay (standardized format for model stats)
+- MediaGrid (for portfolio display)
+- LightboxWrapper (for image viewing)
+- LoadingStates (consistent loading indicators)
+- ErrorBoundaries (graceful error handling)
+- Header (site navigation)
+- Footer (copyright, links)
 
 ## Implementation Order
 
@@ -75,34 +79,30 @@ app/
 
 2. Frontend Base
 
-   - Set up page routes
-   - Create basic layouts
-   - Implement loading states
+   - Set up page routes under the `modeling+` namespace
+   - Create basic layouts with header and footer
+   - Implement loading states and error boundaries
 
 3. Core Components
 
-   - Build reusable components
-   - Integrate grid gallery
-   - Add lightbox functionality
+   - Build reusable components (BoardCard, ModelCard, etc.)
+   - Implement BoardGrid for homepage
+   - Implement ModelGrid for board detail pages
+   - Integrate media gallery for talent pages
+   - Add lightbox functionality for image viewing
 
 4. Enhancements
-   - Add measurements display
-   - Implement filtering/sorting
-   - Add portfolio-specific views
+   - Add measurements display with standardized format
+   - Implement responsive design optimizations
+   - Add image optimization and lazy loading
+   - Ensure accessibility compliance
 
 ## Libraries to Use
 
 - react-grid-gallery
 - yet-another-react-lightbox
-- Optional: react-intersection-observer (lazy loading)
-
-## Notes
-
-- Focus on mobile-first responsive design
-- Implement proper loading states
-- Handle empty states gracefully
-- Consider pagination for large datasets
-- Cache API responses where appropriate
+- react-intersection-observer (for lazy loading)
+- clsx or tailwind-merge (for conditional class names)
 
 ## Design & UX Considerations
 
@@ -111,7 +111,7 @@ app/
 - Implement a responsive, minimalist grid system similar to Heroes Models
 - Use consistent aspect ratios for thumbnails (4:5 for portraits)
 - Add subtle hover effects revealing model name and key stats
-- Consider masonry-style layout for portfolio pages (like APM)
+- Consider masonry-style layout for portfolio pages
 
 ### Typography & Visual Hierarchy
 
@@ -123,9 +123,7 @@ app/
 ### Navigation & Filtering
 
 - Create simple, accessible top navigation
-- Implement filtering by gender, features, and specialties
-- Add quick-filter buttons for common categories
-- Consider search functionality with predictive results
+- Consider search functionality for future implementation
 
 ### Model Detail Pages
 
@@ -163,3 +161,79 @@ app/
 - Add appropriate ARIA labels for interactive components
 - Implement keyboard navigation for gallery components
 - Ensure screen reader compatibility for model information
+
+## Refined Implementation Plan
+
+### Landing Page (Boards Display)
+
+- Create a visually striking asymmetrical grid for board display
+- Implement a mix of image sizes and orientations for visual interest
+- Add subtle hover effects for interactive elements
+- Ensure responsive behavior maintains visual hierarchy
+
+### Board Detail Page (Model Listing)
+
+- Implement uniform grid of model thumbnails with consistent aspect ratios
+- Display model names and key measurements in standardized format
+- Create hover states that enhance but don't distract from imagery
+- Ensure mobile view maintains readability of measurement information
+
+### Component Structure
+
+- `BoardGrid`: Asymmetrical grid component for homepage
+- `BoardCard`: Individual board display with image and title
+- `ModelGrid`: Uniform grid for displaying models within a board
+- `ModelCard`: Individual model card with image, name, and measurements
+- `MeasurementDisplay`: Standardized component for displaying model stats
+
+### Data Requirements
+
+- Board data: title, description, cover image, model count
+- Model data: name, measurements, hair/eye color, portfolio images
+- Relationship mapping between boards and models
+
+### Technical Considerations
+
+- Implement image optimization for fast loading
+- Consider lazy loading for model grids with many entries
+- Ensure accessibility for all interactive elements
+- Optimize for mobile viewing with appropriate breakpoints
+
+### Component Organization
+
+All modeling-specific components should be placed in:
+
+```
+app/
+├── components/
+│   ├── modeling/
+│   │   ├── BoardCard.tsx
+│   │   ├── BoardGrid.tsx
+│   │   ├── ModelCard.tsx
+│   │   ├── ModelGrid.tsx
+│   │   ├── MeasurementDisplay.tsx
+│   │   ├── MediaGallery.tsx
+│   │   ├── Header.tsx
+│   │   └── Footer.tsx
+```
+
+### Styling Approach
+
+Create a dedicated CSS file for the modeling site:
+
+```
+app/
+├── styles/
+│   ├── modeling.css
+```
+
+This will allow for site-specific styling while maintaining separation from other demo sites. The CSS file should be imported in the root layout component for the modeling routes.
+
+### Route Implementation
+
+Each route should:
+
+1. Import necessary components from the modeling component directory
+2. Use the appropriate data loader functions
+3. Handle loading and error states consistently
+4. Implement responsive layouts using the styling defined in modeling.css

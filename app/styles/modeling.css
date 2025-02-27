@@ -1,0 +1,283 @@
+/*
+ * Modeling Agency Site Styles
+ * This file contains styles specific to the modeling agency demo site
+ */
+
+/* Custom properties for the modeling site */
+:root {
+  --modeling-font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --modeling-font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+
+  /* Colors */
+  --modeling-bg: #ffffff;
+  --modeling-text: #1a1a1a;
+  --modeling-muted: #6b7280;
+  --modeling-border: #e5e7eb;
+  --modeling-primary: #000000;
+  --modeling-primary-hover: #333333;
+  --modeling-accent: #f3f4f6;
+
+  /* Spacing */
+  --modeling-spacing-1: 0.25rem;
+  --modeling-spacing-2: 0.5rem;
+  --modeling-spacing-3: 0.75rem;
+  --modeling-spacing-4: 1rem;
+  --modeling-spacing-6: 1.5rem;
+  --modeling-spacing-8: 2rem;
+  --modeling-spacing-12: 3rem;
+  --modeling-spacing-16: 4rem;
+
+  /* Transitions */
+  --modeling-transition-fast: 150ms;
+  --modeling-transition-normal: 300ms;
+  --modeling-transition-slow: 500ms;
+}
+
+/* Dark mode overrides */
+.dark {
+  --modeling-bg: #1a1a1a;
+  --modeling-text: #f3f4f6;
+  --modeling-muted: #9ca3af;
+  --modeling-border: #374151;
+  --modeling-primary: #ffffff;
+  --modeling-primary-hover: #e5e7eb;
+  --modeling-accent: #27272a;
+}
+
+/* Base styles for the modeling site */
+.modeling-site {
+  font-family: var(--modeling-font-sans);
+  color: var(--modeling-text);
+  background-color: var(--modeling-bg);
+}
+
+/* Typography */
+.modeling-site h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin-bottom: var(--modeling-spacing-6);
+}
+
+.modeling-site h2 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin-bottom: var(--modeling-spacing-4);
+}
+
+.modeling-site h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: var(--modeling-spacing-3);
+}
+
+.modeling-site p {
+  margin-bottom: var(--modeling-spacing-4);
+  line-height: 1.6;
+}
+
+/* Container */
+.modeling-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--modeling-spacing-4);
+  padding-right: var(--modeling-spacing-4);
+}
+
+/* Grid layouts */
+.modeling-grid {
+  display: grid;
+  gap: var(--modeling-spacing-6);
+}
+
+.modeling-board-grid {
+  grid-template-columns: repeat(1, 1fr);
+}
+
+@media (min-width: 640px) {
+  .modeling-board-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .modeling-board-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .modeling-board-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.modeling-model-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 640px) {
+  .modeling-model-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .modeling-model-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .modeling-model-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Card styles */
+.modeling-card {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--modeling-border);
+  transition:
+    transform var(--modeling-transition-normal),
+    box-shadow var(--modeling-transition-normal);
+}
+
+.modeling-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.modeling-card-image {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3/4;
+  background-color: var(--modeling-accent);
+}
+
+.modeling-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--modeling-transition-normal);
+}
+
+.modeling-card:hover .modeling-card-image img {
+  transform: scale(1.05);
+}
+
+.modeling-card-content {
+  padding: var(--modeling-spacing-4);
+}
+
+.modeling-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--modeling-spacing-2);
+}
+
+.modeling-card-description {
+  font-size: 0.875rem;
+  color: var(--modeling-muted);
+}
+
+/* Model card specific styles */
+.modeling-model-card .modeling-card-image {
+  aspect-ratio: 4/5;
+}
+
+.modeling-model-measurements {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: var(--modeling-spacing-2);
+  opacity: 0;
+  transition: opacity var(--modeling-transition-normal);
+}
+
+.modeling-model-card:hover .modeling-model-measurements {
+  opacity: 1;
+}
+
+.modeling-model-name {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  margin-top: var(--modeling-spacing-2);
+}
+
+/* Header and footer */
+.modeling-header {
+  padding: var(--modeling-spacing-4) 0;
+  border-bottom: 1px solid var(--modeling-border);
+  margin-bottom: var(--modeling-spacing-8);
+}
+
+.modeling-footer {
+  padding: var(--modeling-spacing-8) 0;
+  border-top: 1px solid var(--modeling-border);
+  margin-top: var(--modeling-spacing-16);
+  color: var(--modeling-muted);
+  font-size: 0.875rem;
+}
+
+/* Media gallery */
+.modeling-media-gallery {
+  margin-top: var(--modeling-spacing-8);
+}
+
+/* Loading states */
+.modeling-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.modeling-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--modeling-accent);
+  border-top-color: var(--modeling-primary);
+  border-radius: 50%;
+  animation: modeling-spinner 0.8s linear infinite;
+}
+
+@keyframes modeling-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error states */
+.modeling-error {
+  padding: var(--modeling-spacing-8);
+  text-align: center;
+  color: #ef4444;
+  border: 1px solid #fee2e2;
+  border-radius: 0.25rem;
+  background-color: #fef2f2;
+}
+
+.dark .modeling-error {
+  color: #f87171;
+  border-color: #7f1d1d;
+  background-color: #450a0a;
+}
