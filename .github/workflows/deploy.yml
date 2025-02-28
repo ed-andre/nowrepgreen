@@ -117,7 +117,7 @@ jobs:
           env | grep -v -E "^(PATH|HOME|GITHUB_|RUNNER_|ACTIONS_|LEIN_|JAVA_|SELENIUM_|CHROMEDRIVER_|DISPLAY)"
 
       - name: Run tests
-        run: npm run test:i
+        run: npm run test:i:ci
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           TRIGGER_API_KEY: ${{ secrets.TRIGGER_API_KEY }}
