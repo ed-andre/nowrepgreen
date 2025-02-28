@@ -23,7 +23,9 @@ export interface PortfolioGalleryProps {
   talentName: string;
   onImagesLoaded?: () => void;
   isNonDefaultPortfolio?: boolean;
-  handleBackToDefaultPortfolio?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  handleBackToDefaultPortfolio?: (
+    e: React.MouseEvent<HTMLButtonElement>,
+  ) => void;
   currentBoardSlug?: string;
 }
 
@@ -55,14 +57,14 @@ export function PortfolioGallery({
   );
 
   // Track image orientations
-  const [imageOrientations, setImageOrientations] = useState<Record<string, "portrait" | "landscape">>(
-    {},
-  );
+  const [imageOrientations, setImageOrientations] = useState<
+    Record<string, "portrait" | "landscape">
+  >({});
 
   // Track video orientations
-  const [videoOrientations, setVideoOrientations] = useState<Record<string, "portrait" | "landscape">>(
-    {},
-  );
+  const [videoOrientations, setVideoOrientations] = useState<
+    Record<string, "portrait" | "landscape">
+  >({});
 
   // State to track which videos are currently playing
   const [playingVideos, setPlayingVideos] = useState<Record<string, boolean>>(
@@ -336,7 +338,7 @@ export function PortfolioGallery({
                 setPlayingVideos((prev) => ({ ...prev, [item.id]: true }))
               }
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === "Enter" || e.key === " ") {
                   setPlayingVideos((prev) => ({ ...prev, [item.id]: true }));
                 }
               }}
@@ -379,10 +381,10 @@ export function PortfolioGallery({
     checkVisibility();
 
     // Add scroll listener
-    window.addEventListener('scroll', checkVisibility);
+    window.addEventListener("scroll", checkVisibility);
 
     return () => {
-      window.removeEventListener('scroll', checkVisibility);
+      window.removeEventListener("scroll", checkVisibility);
     };
   }, [isNonDefaultPortfolio, handleBackToDefaultPortfolio]);
 
@@ -392,8 +394,19 @@ export function PortfolioGallery({
       onClick={handleBackToDefaultPortfolio}
       className="text-xs uppercase tracking-wider text-gray-500 hover:text-black transition-colors flex items-center"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-3 w-3 mr-1"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M15 19l-7-7 7-7"
+        />
       </svg>
       Back to Main Portfolio
     </button>
@@ -437,11 +450,13 @@ export function PortfolioGallery({
       </div>
 
       {/* Bottom Back to Main Portfolio link - only shown when top link is not visible */}
-      {isNonDefaultPortfolio && handleBackToDefaultPortfolio && showBottomLink && (
-        <div className="mt-6">
-          <BackToMainPortfolioLink />
-        </div>
-      )}
+      {isNonDefaultPortfolio &&
+        handleBackToDefaultPortfolio &&
+        showBottomLink && (
+          <div className="mt-6">
+            <BackToMainPortfolioLink />
+          </div>
+        )}
     </div>
   );
 }

@@ -27,8 +27,13 @@ interface MobileTalentHeaderProps {
   talent: any;
   nonDefaultPortfolios?: Portfolio[];
   currentPortfolioId?: string | null;
-  handlePortfolioSelect?: (e: React.MouseEvent<HTMLButtonElement>, portfolioId: string) => void;
-  handleBackToDefaultPortfolio?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  handlePortfolioSelect?: (
+    e: React.MouseEvent<HTMLButtonElement>,
+    portfolioId: string,
+  ) => void;
+  handleBackToDefaultPortfolio?: (
+    e: React.MouseEvent<HTMLButtonElement>,
+  ) => void;
 }
 
 export function MobileTalentHeader({
@@ -136,7 +141,10 @@ export function MobileTalentHeader({
 
         {/* Name, Bio, and Portfolio Links - pushed further right */}
         <div className="w-1/2 pl-1">
-          <h2 className="mb-1" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <h2
+            className="mb-1"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
             <span className="block text-base uppercase font-light tracking-widest">
               {talent.firstName}
             </span>
@@ -153,7 +161,7 @@ export function MobileTalentHeader({
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
               <span>VIEW BIO</span>
-              <span className="ml-1">{isBioOpen ? '−' : '+'}</span>
+              <span className="ml-1">{isBioOpen ? "−" : "+"}</span>
             </button>
           )}
 
@@ -245,7 +253,7 @@ export function MobileTalentHeader({
           className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
           onClick={toggleBio}
           onKeyDown={(e) => {
-            if (e.key === 'Escape') toggleBio();
+            if (e.key === "Escape") toggleBio();
           }}
           role="dialog"
           aria-modal="true"
@@ -255,7 +263,7 @@ export function MobileTalentHeader({
             className="bg-white rounded-lg p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto relative"
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => {
-              if (e.key === 'Escape') toggleBio();
+              if (e.key === "Escape") toggleBio();
               e.stopPropagation();
             }}
             tabIndex={0}
@@ -267,7 +275,10 @@ export function MobileTalentHeader({
             >
               <X size={20} />
             </button>
-            <h3 className="text-xl mb-4 font-light" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+            <h3
+              className="text-xl mb-4 font-light"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
               {talent.firstName} {talent.lastName}
             </h3>
             <div

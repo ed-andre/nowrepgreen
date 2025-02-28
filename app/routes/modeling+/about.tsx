@@ -11,7 +11,7 @@ export async function loader() {
 
   // Sort boards alphabetically by title
   const sortedAllBoards = allBoards.sort((a, b) =>
-    a.title.localeCompare(b.title)
+    a.title.localeCompare(b.title),
   );
 
   return {
@@ -52,7 +52,7 @@ export default function AboutUs() {
   // Handle navigation with animation
   const handleNavigation = (
     e: React.MouseEvent<HTMLAnchorElement>,
-    path: string
+    path: string,
   ) => {
     e.preventDefault();
     setIsNavigating(true);
@@ -70,13 +70,14 @@ export default function AboutUs() {
   // Update background when hovered word changes
   useEffect(() => {
     if (hoveredWord && bgRef.current) {
-      const word = accentedWords.find(w => w.id === hoveredWord);
+      const word = accentedWords.find((w) => w.id === hoveredWord);
       if (word) {
         bgRef.current.style.background = `linear-gradient(135deg, ${word.color} 0%, #121212 70%)`;
         bgRef.current.style.opacity = "1";
       }
     } else if (bgRef.current) {
-      bgRef.current.style.background = "linear-gradient(135deg, #121212 0%, #121212 100%)";
+      bgRef.current.style.background =
+        "linear-gradient(135deg, #121212 0%, #121212 100%)";
       bgRef.current.style.opacity = "1";
     }
   }, [hoveredWord]);
@@ -171,7 +172,9 @@ export default function AboutUs() {
             <div
               className="opacity-0 mb-16"
               style={{
-                animation: isPageVisible ? 'fadeIn 1s ease forwards 0.3s' : 'none',
+                animation: isPageVisible
+                  ? "fadeIn 1s ease forwards 0.3s"
+                  : "none",
               }}
             >
               <p
@@ -191,24 +194,51 @@ export default function AboutUs() {
             <div
               className="space-y-12 opacity-0"
               style={{
-                animation: isPageVisible ? 'fadeIn 1s ease forwards 0.6s' : 'none',
+                animation: isPageVisible
+                  ? "fadeIn 1s ease forwards 0.6s"
+                  : "none",
                 fontFamily: "'Cormorant Garamond', serif",
               }}
             >
               <p className="text-2xl md:text-3xl leading-relaxed">
-                At NowRep, we believe that true <AccentedWord id="vision" text="vision" /> transcends the ordinary. We're not just another agency—we're architects of <AccentedWord id="identity" text="identity" />, curators of <AccentedWord id="talent" text="talent" />, and pioneers of cultural evolution. Our collective exists at the intersection of art and commerce, where <AccentedWord id="creativity" text="creativity" /> meets purpose.
+                At NowRep, we believe that true{" "}
+                <AccentedWord id="vision" text="vision" /> transcends the
+                ordinary. We're not just another agency—we're architects of{" "}
+                <AccentedWord id="identity" text="identity" />, curators of{" "}
+                <AccentedWord id="talent" text="talent" />, and pioneers of
+                cultural evolution. Our collective exists at the intersection of
+                art and commerce, where{" "}
+                <AccentedWord id="creativity" text="creativity" /> meets
+                purpose.
               </p>
 
               <p className="text-2xl md:text-3xl leading-relaxed">
-                We cultivate a constellation of unique voices that challenge conventions and redefine boundaries. Through <AccentedWord id="storytelling" text="storytelling" /> and <AccentedWord id="innovation" text="innovation" />, our talents don't just participate in culture—they shape it, transform it, and propel it forward into unexplored territories.
+                We cultivate a constellation of unique voices that challenge
+                conventions and redefine boundaries. Through{" "}
+                <AccentedWord id="storytelling" text="storytelling" /> and{" "}
+                <AccentedWord id="innovation" text="innovation" />, our talents
+                don't just participate in culture—they shape it, transform it,
+                and propel it forward into unexplored territories.
               </p>
 
               <p className="text-2xl md:text-3xl leading-relaxed">
-                Our approach is built on <AccentedWord id="authenticity" text="authenticity" /> and meaningful <AccentedWord id="connection" text="connection" />. We nurture each talent's distinctive essence while creating bridges between visionary brands and audiences hungry for substance. This symbiotic relationship fuels a cycle of <AccentedWord id="transformation" text="transformation" /> that resonates across industries and transcends conventional boundaries.
+                Our approach is built on{" "}
+                <AccentedWord id="authenticity" text="authenticity" /> and
+                meaningful <AccentedWord id="connection" text="connection" />.
+                We nurture each talent's distinctive essence while creating
+                bridges between visionary brands and audiences hungry for
+                substance. This symbiotic relationship fuels a cycle of{" "}
+                <AccentedWord id="transformation" text="transformation" /> that
+                resonates across industries and transcends conventional
+                boundaries.
               </p>
 
               <p className="text-2xl md:text-3xl leading-relaxed">
-                In a world of fleeting trends, we stand for enduring impact. Our collective brings together diverse perspectives, experiences, and expressions—creating a tapestry of voices that speaks to the complexity and beauty of human experience. This is more than representation; this is cultural alchemy.
+                In a world of fleeting trends, we stand for enduring impact. Our
+                collective brings together diverse perspectives, experiences,
+                and expressions—creating a tapestry of voices that speaks to the
+                complexity and beauty of human experience. This is more than
+                representation; this is cultural alchemy.
               </p>
             </div>
 
@@ -216,7 +246,9 @@ export default function AboutUs() {
             <div
               className="mt-24 opacity-0"
               style={{
-                animation: isPageVisible ? 'fadeIn 1s ease forwards 0.9s' : 'none',
+                animation: isPageVisible
+                  ? "fadeIn 1s ease forwards 0.9s"
+                  : "none",
               }}
             >
               <p
@@ -231,13 +263,21 @@ export default function AboutUs() {
             <div
               className="mt-24 opacity-0 flex justify-center"
               style={{
-                animation: isPageVisible ? 'fadeIn 1s ease forwards 1.2s' : 'none',
+                animation: isPageVisible
+                  ? "fadeIn 1s ease forwards 1.2s"
+                  : "none",
               }}
             >
               <div className="flex space-x-8 text-lg">
-                <button className="text-gray-400 hover:text-white transition-colors duration-300">Instagram</button>
-                <button className="text-gray-400 hover:text-white transition-colors duration-300">Twitter</button>
-                <button className="text-gray-400 hover:text-white transition-colors duration-300">LinkedIn</button>
+                <button className="text-gray-400 hover:text-white transition-colors duration-300">
+                  Instagram
+                </button>
+                <button className="text-gray-400 hover:text-white transition-colors duration-300">
+                  Twitter
+                </button>
+                <button className="text-gray-400 hover:text-white transition-colors duration-300">
+                  LinkedIn
+                </button>
               </div>
             </div>
           </div>

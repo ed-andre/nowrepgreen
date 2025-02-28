@@ -2,7 +2,11 @@ import { useState, useEffect, useRef } from "react";
 
 import { Link } from "react-router";
 
-import { PortfolioGallery, TalentBio, MobileTalentHeader } from "~/components/modeling";
+import {
+  PortfolioGallery,
+  TalentBio,
+  MobileTalentHeader,
+} from "~/components/modeling";
 
 // Define the media item type
 type MediaItem = {
@@ -35,8 +39,13 @@ interface TalentProfileProps {
   portfolioTitle?: string;
   nonDefaultPortfolios?: any[];
   currentPortfolioId?: string | null;
-  handlePortfolioSelect?: (e: React.MouseEvent<HTMLButtonElement>, portfolioId: string) => void;
-  handleBackToDefaultPortfolio?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  handlePortfolioSelect?: (
+    e: React.MouseEvent<HTMLButtonElement>,
+    portfolioId: string,
+  ) => void;
+  handleBackToDefaultPortfolio?: (
+    e: React.MouseEvent<HTMLButtonElement>,
+  ) => void;
 }
 
 export function TalentProfile({
@@ -220,14 +229,27 @@ export function TalentProfile({
       <div className="block lg:hidden mb-8">
         <Link
           to={`/modeling/boards/${currentBoardSlug}`}
-          onClick={(e) => handleNavigation(e, `/modeling/boards/${currentBoardSlug}`)}
+          onClick={(e) =>
+            handleNavigation(e, `/modeling/boards/${currentBoardSlug}`)
+          }
           className="text-xs uppercase tracking-wider text-gray-500 hover:text-black transition-colors flex items-center"
           style={{ fontFamily: "'Montserrat', sans-serif" }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-3 w-3 mr-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
-          Back to {board?.title || 'Board'}
+          Back to {board?.title || "Board"}
         </Link>
       </div>
 

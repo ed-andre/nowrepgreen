@@ -33,7 +33,8 @@ export function AgencyHeader({
   currentBoardSlug = "",
 }: AgencyHeaderProps) {
   // Check if we're on the index page
-  const isIndexPage = currentPath === "/modeling" || currentPath === "/modeling/";
+  const isIndexPage =
+    currentPath === "/modeling" || currentPath === "/modeling/";
 
   return (
     <header className="py-4 bg-transparent relative w-full">

@@ -29,8 +29,13 @@ interface TalentSidebarProps {
   ) => void;
   nonDefaultPortfolios?: Portfolio[];
   currentPortfolioId?: string | null;
-  handlePortfolioSelect?: (e: React.MouseEvent<HTMLButtonElement>, portfolioId: string) => void;
-  handleBackToDefaultPortfolio?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  handlePortfolioSelect?: (
+    e: React.MouseEvent<HTMLButtonElement>,
+    portfolioId: string,
+  ) => void;
+  handleBackToDefaultPortfolio?: (
+    e: React.MouseEvent<HTMLButtonElement>,
+  ) => void;
   handleContactClick?: () => void;
   isContactOpen?: boolean;
 }

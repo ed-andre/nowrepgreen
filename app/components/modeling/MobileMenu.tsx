@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import { Menu, X } from 'lucide-react';
+import { Menu, X } from "lucide-react";
 import { Link } from "react-router";
 
 import { MenuList } from "./MenuList";
@@ -38,13 +38,17 @@ export function MobileMenu({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (isOpen && !target.closest('.mobile-menu-container') && !target.closest('.hamburger-button')) {
+      if (
+        isOpen &&
+        !target.closest(".mobile-menu-container") &&
+        !target.closest(".hamburger-button")
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
   // Close menu on navigation
@@ -55,13 +59,13 @@ export function MobileMenu({
   // Close menu when escape key is pressed
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
-      if (isOpen && event.key === 'Escape') {
+      if (isOpen && event.key === "Escape") {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('keydown', handleEscKey);
-    return () => document.removeEventListener('keydown', handleEscKey);
+    document.addEventListener("keydown", handleEscKey);
+    return () => document.removeEventListener("keydown", handleEscKey);
   }, [isOpen]);
 
   return (
@@ -82,13 +86,16 @@ export function MobileMenu({
 
       {/* Mobile Menu Dropdown */}
       <div
-        className={`mobile-menu-container fixed top-16 left-0 right-0 transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}
+        className={`mobile-menu-container fixed top-16 left-0 right-0 transition-all duration-300 ease-in-out ${isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`}
         style={{ zIndex: 30 }}
       >
         <div
           className="mx-4 rounded-lg shadow-lg py-4 relative backdrop-blur-md"
           style={{
-            backgroundColor: textColor === "white" ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.9)',
+            backgroundColor:
+              textColor === "white"
+                ? "rgba(0, 0, 0, 0.85)"
+                : "rgba(255, 255, 255, 0.9)",
           }}
         >
           {/* Close button */}
@@ -130,7 +137,10 @@ export function MobileMenu({
                         : ""
                     }`}
                     style={{
-                      color: textColor === "white" ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)",
+                      color:
+                        textColor === "white"
+                          ? "rgba(255,255,255,0.9)"
+                          : "rgba(0,0,0,0.8)",
                     }}
                   >
                     All Talent
@@ -160,7 +170,10 @@ export function MobileMenu({
                             : ""
                         }`}
                         style={{
-                          color: textColor === "white" ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)",
+                          color:
+                            textColor === "white"
+                              ? "rgba(255,255,255,0.9)"
+                              : "rgba(0,0,0,0.8)",
                         }}
                       >
                         {board.title}

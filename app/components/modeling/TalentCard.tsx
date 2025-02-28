@@ -63,7 +63,8 @@ export function TalentCard({
 
     // Add hair/eye color
     const colors = [];
-    if (measurements.hairColor) colors.push(measurements.hairColor.toUpperCase());
+    if (measurements.hairColor)
+      colors.push(measurements.hairColor.toUpperCase());
     if (measurements.eyeColor) colors.push(measurements.eyeColor.toUpperCase());
 
     if (colors.length > 0) {

@@ -49,6 +49,10 @@ The sample site demonstrates the data synchronization between NowRepBlue (admin 
 - **Code Quality**: ESLint, Prettier, TypeScript
 - **Data sync**: Trigger.dev
 
+### Deployment
+
+For detailed deployment instructions and environment setup, see the [Deployment Strategy](docs/deployment-strategy.md) documentation.
+
 ## Data Pipeline Synchronization Architecture
 
 The platform implements a sophisticated data synchronization system designed for reliability and zero-downtime updates:

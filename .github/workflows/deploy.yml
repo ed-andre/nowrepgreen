@@ -1,0 +1,186 @@
+name: 🚀 Dev Branch Deployment (Fly.io)
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          cache-dependency-path: ./package.json
+          node-version: 20.x
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npm run lint
+
+  typecheck:
+    name: TypeScript typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          cache-dependency-path: ./package.json
+          node-version: 20.x
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Type check
+        run: npm run typecheck
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TRIGGER_API_KEY: ${{ secrets.TRIGGER_API_KEY }}
+          TRIGGER_SECRET_KEY: ${{ secrets.TRIGGER_SECRET_KEY }}
+          SYNC_SECRET_KEY: ${{ secrets.SYNC_SECRET_KEY }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          # DOMAIN: ${{ secrets.DOMAIN }}
+
+  unit-tests:
+    name: Unit Tests (Vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          cache-dependency-path: ./package.json
+          node-version: 20.x
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm run test -- --coverage
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TRIGGER_API_KEY: ${{ secrets.TRIGGER_API_KEY }}
+          TRIGGER_SECRET_KEY: ${{ secrets.TRIGGER_SECRET_KEY }}
+          SYNC_SECRET_KEY: ${{ secrets.SYNC_SECRET_KEY }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          # DOMAIN: ${{ secrets.DOMAIN }}
+
+  integration-tests:
+    name: Integration Tests (Vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          cache-dependency-path: ./package.json
+          node-version: 20.x
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm run test:i -- --coverage
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TRIGGER_API_KEY: ${{ secrets.TRIGGER_API_KEY }}
+          TRIGGER_SECRET_KEY: ${{ secrets.TRIGGER_SECRET_KEY }}
+          SYNC_SECRET_KEY: ${{ secrets.SYNC_SECRET_KEY }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          # DOMAIN: ${{ secrets.DOMAIN }}
+
+  deploy:
+    name: Deploy to Fly.io
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, unit-tests, integration-tests]
+    # only deploy branches on pushes for now
+    if: ${{ github.ref == 'refs/heads/dev' && github.event_name == 'push'}}
+    environment: ${{ github.ref == 'refs/heads/dev' && 'nowrepgreen-e197-staging'}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read app name
+        uses: SebRollen/toml-action@v1.2.0
+        id: app-name
+        with:
+          file: fly.toml
+          field: app
+
+      - name: Setup Fly
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Verify Fly CLI authentication
+        run: flyctl auth whoami
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      # Create a snapshot of the volume before deployment
+      - name: Create pre-deployment backup
+        run: |
+          # Get current timestamp for the snapshot name
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+
+          # Create a new snapshot
+          flyctl volumes snapshot create data --app ${{ steps.app-name.outputs.value }}-staging --snapshot-name "pre-deploy-$TIMESTAMP"
+
+          # List all snapshots
+          SNAPSHOTS=$(flyctl volumes snapshots list data --app ${{ steps.app-name.outputs.value }}-staging --json)
+
+          # Keep only the most recent snapshot (delete others)
+          echo "$SNAPSHOTS" | jq -r '.[] | select(.name | startswith("pre-deploy-")) | .id' | sort | head -n -1 | while read -r SNAPSHOT_ID; do
+            if [ ! -z "$SNAPSHOT_ID" ]; then
+              echo "Deleting old snapshot: $SNAPSHOT_ID"
+              flyctl volumes snapshots destroy "$SNAPSHOT_ID" --app ${{ steps.app-name.outputs.value }}-staging --yes
+            fi
+          done
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy Dev Branch
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        run: flyctl deploy --remote-only --build-arg COMMIT_SHA=${{ github.sha }} --app ${{ steps.app-name.outputs.value }}-staging
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TRIGGER_API_KEY: ${{ secrets.TRIGGER_API_KEY }}
+          TRIGGER_SECRET_KEY: ${{ secrets.TRIGGER_SECRET_KEY }}
+          SYNC_SECRET_KEY: ${{ secrets.SYNC_SECRET_KEY }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          # DOMAIN: ${{ secrets.DOMAIN }}
+
+      - name: Deploy Trigger.dev
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        env:
+          TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
+        run: npx trigger.dev@latest deploy

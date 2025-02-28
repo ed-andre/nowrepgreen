@@ -64,13 +64,13 @@ export default function ModelingIndex() {
     const detectTouch = () => {
       setIsTouchDevice(true);
       // Remove the event listeners once we've detected touch
-      window.removeEventListener('touchstart', detectTouch);
+      window.removeEventListener("touchstart", detectTouch);
     };
 
-    window.addEventListener('touchstart', detectTouch);
+    window.addEventListener("touchstart", detectTouch);
 
     return () => {
-      window.removeEventListener('touchstart', detectTouch);
+      window.removeEventListener("touchstart", detectTouch);
     };
   }, []);
 
@@ -170,7 +170,7 @@ export default function ModelingIndex() {
   // Add a touch handler for boards
   const handleBoardTouch = (
     e: React.TouchEvent<HTMLDivElement>,
-    boardId: string
+    boardId: string,
   ) => {
     // Prevent default to avoid immediate click
     e.preventDefault();
@@ -279,26 +279,34 @@ export default function ModelingIndex() {
     // More granular font size adjustments based on number of items and screen size
     if (totalItems > 10) {
       return {
-        boardFontSize: "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl",
-        directoryFontSize: "text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl",
+        boardFontSize:
+          "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl",
+        directoryFontSize:
+          "text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl",
         gap: "gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12",
       };
     } else if (totalItems > 8) {
       return {
-        boardFontSize: "text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl",
-        directoryFontSize: "text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl",
+        boardFontSize:
+          "text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl",
+        directoryFontSize:
+          "text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl",
         gap: "gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12",
       };
     } else if (totalItems > 6) {
       return {
-        boardFontSize: "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl",
-        directoryFontSize: "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl",
+        boardFontSize:
+          "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl",
+        directoryFontSize:
+          "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl",
         gap: "gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16",
       };
     } else {
       return {
-        boardFontSize: "text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl",
-        directoryFontSize: "text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl",
+        boardFontSize:
+          "text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl",
+        directoryFontSize:
+          "text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl",
         gap: "gap-8 sm:gap-10 md:gap-12 lg:gap-16 xl:gap-20",
       };
     }

@@ -36,7 +36,7 @@ export function TalentSearch({
         }}
         onClick={focusSearch}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             focusSearch();
           }
         }}

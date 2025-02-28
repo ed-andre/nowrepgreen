@@ -98,13 +98,13 @@ export default function TalentDirectory() {
     const detectTouch = () => {
       setIsTouchDevice(true);
       // Remove the event listeners once we've detected touch
-      window.removeEventListener('touchstart', detectTouch);
+      window.removeEventListener("touchstart", detectTouch);
     };
 
-    window.addEventListener('touchstart', detectTouch);
+    window.addEventListener("touchstart", detectTouch);
 
     return () => {
-      window.removeEventListener('touchstart', detectTouch);
+      window.removeEventListener("touchstart", detectTouch);
     };
   }, []);
 
@@ -258,7 +258,7 @@ export default function TalentDirectory() {
   const handleTalentTouch = (
     e: React.TouchEvent<HTMLDivElement>,
     talentId: string,
-    boardId: string
+    boardId: string,
   ) => {
     // Prevent default to avoid immediate click
     e.preventDefault();
@@ -329,7 +329,10 @@ export default function TalentDirectory() {
       />
 
       {/* Main content */}
-      <div className="flex flex-col md:flex-row mt-32 relative" style={{ zIndex: 10 }}>
+      <div
+        className="flex flex-col md:flex-row mt-32 relative"
+        style={{ zIndex: 10 }}
+      >
         {/* Sidebar - Made sticky and hidden on mobile and iPad */}
         <div className="hidden lg:block lg:w-64 flex-shrink-0 lg:fixed lg:left-0 lg:top-24 lg:h-[calc(100vh-6rem)] lg:overflow-y-auto px-6 lg:py-4 lg:box-border overflow-x-hidden">
           <SidebarMenu
