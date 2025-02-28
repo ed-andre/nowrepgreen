@@ -160,7 +160,7 @@ jobs:
         run: |
           # Create a script to run migrations on the in-memory database
           cat > setup-test-db.js << 'EOF'
-          const { execSync } = require('child_process');
+          import { execSync } from 'child_process';
 
           // Set the DATABASE_URL for the in-memory database
           process.env.DATABASE_URL = 'file::memory:?cache=shared';
