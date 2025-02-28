@@ -114,6 +114,8 @@ jobs:
           TRIGGER_SECRET_KEY: ${{ secrets.TRIGGER_SECRET_KEY }}
           SYNC_SECRET_KEY: ${{ secrets.SYNC_SECRET_KEY }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          TARGET_API_URL: ${{ secrets.TARGET_API_URL }}
+          SOURCE_API_URL: ${{ secrets.SOURCE_API_URL }}
           # DOMAIN: ${{ secrets.DOMAIN }}
 
   deploy:
@@ -177,6 +179,8 @@ jobs:
           TRIGGER_SECRET_KEY: ${{ secrets.TRIGGER_SECRET_KEY }}
           SYNC_SECRET_KEY: ${{ secrets.SYNC_SECRET_KEY }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          TARGET_API_URL: ${{ secrets.TARGET_API_URL }}
+          SOURCE_API_URL: ${{ secrets.SOURCE_API_URL }}
           # DOMAIN: ${{ secrets.DOMAIN }}
 
       - name: Deploy Trigger.dev
