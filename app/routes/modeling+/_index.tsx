@@ -53,9 +53,35 @@ export default function ModelingIndex() {
   >({});
   const [isPageVisible, setIsPageVisible] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const touchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const bgImageRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Detect touch device on mount
+  useEffect(() => {
+    const detectTouch = () => {
+      setIsTouchDevice(true);
+      // Remove the event listeners once we've detected touch
+      window.removeEventListener('touchstart', detectTouch);
+    };
+
+    window.addEventListener('touchstart', detectTouch);
+
+    return () => {
+      window.removeEventListener('touchstart', detectTouch);
+    };
+  }, []);
+
+  // Clear touch timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (touchTimeoutRef.current) {
+        clearTimeout(touchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Fade in effect when component mounts
   useEffect(() => {
@@ -101,18 +127,75 @@ export default function ModelingIndex() {
     }
   };
 
+  // Modified handler for mouse enter to work with touch
   const handleMouseEnter = (boardId: string) => {
     if (!isNavigating) {
       setHoveredBoard(boardId);
       setHoveredDirectory(false);
+
+      // For touch devices, set a timeout to clear the hover state
+      if (isTouchDevice) {
+        if (touchTimeoutRef.current) {
+          clearTimeout(touchTimeoutRef.current);
+        }
+
+        touchTimeoutRef.current = setTimeout(() => {
+          setHoveredBoard(null);
+          setHoveredDirectory(false);
+        }, 3000); // Reset after 3 seconds
+      }
     }
   };
 
+  // Modified handler for directory mouse enter
   const handleDirectoryMouseEnter = () => {
     if (!isNavigating) {
       setHoveredBoard(null);
       setHoveredDirectory(true);
+
+      // For touch devices, set a timeout to clear the hover state
+      if (isTouchDevice) {
+        if (touchTimeoutRef.current) {
+          clearTimeout(touchTimeoutRef.current);
+        }
+
+        touchTimeoutRef.current = setTimeout(() => {
+          setHoveredBoard(null);
+          setHoveredDirectory(false);
+        }, 3000); // Reset after 3 seconds
+      }
     }
+  };
+
+  // Add a touch handler for boards
+  const handleBoardTouch = (
+    e: React.TouchEvent<HTMLDivElement>,
+    boardId: string
+  ) => {
+    // Prevent default to avoid immediate click
+    e.preventDefault();
+
+    // If we're already hovering this board, let the click handler take over
+    if (hoveredBoard === boardId) {
+      return;
+    }
+
+    // Otherwise, simulate hover
+    handleMouseEnter(boardId);
+  };
+
+  // Add a touch handler for directory
+  const handleDirectoryTouch = (e: React.TouchEvent<HTMLDivElement>) => {
+    // Prevent default to avoid immediate click
+    e.preventDefault();
+
+    // If we're already hovering directory, let the click handler take over
+    if (hoveredDirectory) {
+      return;
+    }
+
+    // Otherwise, simulate hover
+    handleDirectoryMouseEnter();
   };
 
   const handleMouseLeave = () => {
@@ -275,6 +358,7 @@ export default function ModelingIndex() {
                   className="text-center cursor-pointer"
                   onMouseEnter={() => handleMouseEnter(board.id)}
                   onMouseLeave={handleMouseLeave}
+                  onTouchStart={(e) => handleBoardTouch(e, board.id)}
                 >
                   <Link
                     to={`/modeling/boards/${board.title
@@ -338,6 +422,7 @@ export default function ModelingIndex() {
                 className="text-center cursor-pointer"
                 onMouseEnter={handleDirectoryMouseEnter}
                 onMouseLeave={handleMouseLeave}
+                onTouchStart={handleDirectoryTouch}
               >
                 <Link
                   to="/modeling/talents"

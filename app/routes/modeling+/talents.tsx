@@ -44,6 +44,8 @@ export default function TalentDirectory() {
   const [isNavigating, setIsNavigating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const touchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const bgImageRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -91,6 +93,21 @@ export default function TalentDirectory() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Detect touch device on mount
+  useEffect(() => {
+    const detectTouch = () => {
+      setIsTouchDevice(true);
+      // Remove the event listeners once we've detected touch
+      window.removeEventListener('touchstart', detectTouch);
+    };
+
+    window.addEventListener('touchstart', detectTouch);
+
+    return () => {
+      window.removeEventListener('touchstart', detectTouch);
+    };
+  }, []);
+
   // Handle search input change with typing animation
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -134,11 +151,23 @@ export default function TalentDirectory() {
     }, 500);
   };
 
-  // Handle mouse enter for talent
+  // Modified handle talent mouse enter
   const handleTalentMouseEnter = (talentId: string, boardId: string) => {
     if (!isNavigating) {
       setHoveredTalent(talentId);
       setHoveredBoard(boardId);
+
+      // For touch devices, set a timeout to clear the hover state
+      if (isTouchDevice) {
+        if (touchTimeoutRef.current) {
+          clearTimeout(touchTimeoutRef.current);
+        }
+
+        touchTimeoutRef.current = setTimeout(() => {
+          setHoveredTalent(null);
+          setHoveredBoard(null);
+        }, 3000); // Reset after 3 seconds
+      }
     }
   };
 
@@ -215,6 +244,33 @@ export default function TalentDirectory() {
       }
     };
   }, []);
+
+  // Clear touch timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (touchTimeoutRef.current) {
+        clearTimeout(touchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Add a touch handler for talents
+  const handleTalentTouch = (
+    e: React.TouchEvent<HTMLDivElement>,
+    talentId: string,
+    boardId: string
+  ) => {
+    // Prevent default to avoid immediate click
+    e.preventDefault();
+
+    // If we're already hovering this talent, let the click handler take over
+    if (hoveredTalent === talentId) {
+      return;
+    }
+
+    // Otherwise, simulate hover
+    handleTalentMouseEnter(talentId, boardId);
+  };
 
   return (
     <div
@@ -312,10 +368,13 @@ export default function TalentDirectory() {
                         <div
                           key={talent.id}
                           className="group"
-                          onMouseEnter={() =>
+                          onMouseEnter={(e) =>
                             handleTalentMouseEnter(talent.id, board.id)
                           }
                           onMouseLeave={handleMouseLeave}
+                          onTouchStart={(e) =>
+                            handleTalentTouch(e, talent.id, board.id)
+                          }
                         >
                           <Link
                             to={`/modeling/boards/${board.slug}?talent=${talent.id}`}
