@@ -7,7 +7,6 @@ import {
   LoadingState,
   ErrorDisplay,
   AgencyHeader,
-  HeaderMenu,
   Footer,
 } from "~/components/modeling";
 import { prisma } from "~/db.server";
@@ -193,23 +192,31 @@ export default function ModelingIndex() {
   // Calculate font size based on number of boards to ensure everything fits
   const calculateFontSize = () => {
     const totalItems = boards.length + 1; // boards + all talents link
-    if (totalItems > 8) {
+
+    // More granular font size adjustments based on number of items and screen size
+    if (totalItems > 10) {
       return {
-        boardFontSize: "text-3xl md:text-6xl",
-        directoryFontSize: "text-2xl md:text-5xl",
-        gap: "gap-8 md:gap-12",
+        boardFontSize: "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl",
+        directoryFontSize: "text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl",
+        gap: "gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12",
+      };
+    } else if (totalItems > 8) {
+      return {
+        boardFontSize: "text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl",
+        directoryFontSize: "text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl",
+        gap: "gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12",
       };
     } else if (totalItems > 6) {
       return {
-        boardFontSize: "text-3xl md:text-7xl",
-        directoryFontSize: "text-2xl md:text-6xl",
-        gap: "gap-10 md:gap-16",
+        boardFontSize: "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl",
+        directoryFontSize: "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl",
+        gap: "gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16",
       };
     } else {
       return {
-        boardFontSize: "text-4xl md:text-8xl",
-        directoryFontSize: "text-3xl md:text-7xl",
-        gap: "gap-12 md:gap-20",
+        boardFontSize: "text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl",
+        directoryFontSize: "text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl",
+        gap: "gap-8 sm:gap-10 md:gap-12 lg:gap-16 xl:gap-20",
       };
     }
   };
@@ -246,25 +253,18 @@ export default function ModelingIndex() {
       />
 
       {/* Use the AgencyHeader component */}
-      <AgencyHeader
-        isTransparent={true}
-        textColor={hoveredBoard || hoveredDirectory ? "white" : "black"}
-      />
-
-      {/* Add navigation menu under the header */}
-      <HeaderMenu
-        position="header"
-        textColor={
-          hoveredBoard || hoveredDirectory
-            ? "rgba(255,255,255,0.9)"
-            : "rgba(0,0,0,0.8)"
-        }
-        currentPath={location.pathname}
-      />
+      <div className="sticky top-0 z-50 w-full">
+        <AgencyHeader
+          isTransparent={true}
+          textColor={hoveredBoard || hoveredDirectory ? "white" : "black"}
+          showMobileMenu={true}
+          currentPath={location.pathname}
+        />
+      </div>
 
       {/* Main content - bold striking board names */}
       <div
-        className="flex-grow flex flex-col items-center justify-center py-6 relative"
+        className="flex-grow flex flex-col items-center justify-center pt-4 md:pt-6 pb-6 relative"
         style={{ zIndex: 10 }}
       >
         <div className="w-full max-w-6xl px-4">

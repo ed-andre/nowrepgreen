@@ -238,7 +238,7 @@ export function TalentSidebar({
             className="text-xs uppercase tracking-wider text-gray-400 hover:text-black transition-colors back-link"
             style={{ fontFamily: "'Montserrat', sans-serif" }}
           >
-            ← Back to {board.title}
+            ← Back to {board.title} Board
           </Link>
         </div>
       </div>

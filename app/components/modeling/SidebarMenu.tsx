@@ -22,7 +22,7 @@ export function SidebarMenu({
   handleNavigation,
 }: SidebarMenuProps) {
   return (
-    <div className="w-full md:w-full sidebar-menu-container overflow-hidden">
+    <div className="w-full lg:w-full sidebar-menu-container overflow-hidden">
       <nav className="pt-2">
         {/* Boards navigation with minimal styling */}
         <div className="mb-8 main-menu">

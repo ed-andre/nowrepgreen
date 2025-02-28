@@ -39,118 +39,112 @@ export function TalentCard({
     }
   }, []);
 
-  // Format measurements in the style shown in the screenshot
-  const formatMeasurements = () => {
+  // Format all measurements and attributes in a compact way
+  const formatTalentDetails = () => {
     const { measurements } = talent;
     if (!measurements) return null;
 
-    const height = measurements.heightFtIn ? measurements.heightFtIn : "";
-    const bust = measurements.bustIn ? `${measurements.bustIn}"` : "";
-    const waist = measurements.waistIn ? `${measurements.waistIn}"` : "";
-    const hips = measurements.hipsIn ? `${measurements.hipsIn}"` : "";
+    const parts = [];
 
-    // Format as: 5'10", 34" / 25" / 35"
-    const heightStr = height;
-    const measurementsStr = [bust, waist, hips].filter(Boolean).join(" / ");
+    // Add height
+    if (measurements.heightFtIn) {
+      parts.push(measurements.heightFtIn);
+    }
 
-    return (
-      <>
-        <div className="text-center">{heightStr}</div>
-        {measurementsStr && (
-          <div className="text-center">{measurementsStr}</div>
-        )}
-      </>
-    );
+    // Add bust/waist/hips
+    const bwh = [];
+    if (measurements.bustIn) bwh.push(`${measurements.bustIn}"`);
+    if (measurements.waistIn) bwh.push(`${measurements.waistIn}"`);
+    if (measurements.hipsIn) bwh.push(`${measurements.hipsIn}"`);
+
+    if (bwh.length > 0) {
+      parts.push(bwh.join("/"));
+    }
+
+    // Add hair/eye color
+    const colors = [];
+    if (measurements.hairColor) colors.push(measurements.hairColor.toUpperCase());
+    if (measurements.eyeColor) colors.push(measurements.eyeColor.toUpperCase());
+
+    if (colors.length > 0) {
+      parts.push(colors.join("/"));
+    }
+
+    // Add shoe size
+    if (measurements.shoeSizeUs) {
+      parts.push(`SZ ${measurements.shoeSizeUs}`);
+    }
+
+    return parts.join(" · ");
   };
 
-  // Format colors and shoe size
-  const formatColors = () => {
-    const { measurements } = talent;
-    if (!measurements) return null;
-
-    const hairColor = measurements.hairColor || "";
-    const eyeColor = measurements.eyeColor || "";
-    const shoeSize = measurements.shoeSizeUs
-      ? `${measurements.shoeSizeUs}`
-      : "";
-
-    const colorParts = [];
-    if (hairColor) colorParts.push(hairColor.toUpperCase());
-    if (eyeColor) colorParts.push(eyeColor.toUpperCase());
-
-    return (
-      <>
-        {colorParts.length > 0 && (
-          <div className="text-center text-xs mt-1">
-            {colorParts.join(" / ")}
-          </div>
-        )}
-        {shoeSize && (
-          <div className="text-center text-xs mt-1">SHOE {shoeSize}</div>
-        )}
-      </>
-    );
-  };
+  const talentDetails = formatTalentDetails();
 
   return (
-    <div
-      className={`block aspect-[3/4] overflow-hidden bg-gray-100 relative group ${!imageLoaded ? "animate-pulse" : ""}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {talent.profileImage ? (
-        <>
-          <div
-            className={`w-full h-full transition-opacity duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
-          >
-            <img
-              ref={imageRef}
-              src={talent.profileImage}
-              alt={`${talent.firstName} ${talent.lastName}`}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageLoaded(true)}
-            />
-          </div>
-
-          {/* Loading placeholder */}
-          {!imageLoaded && (
-            <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
-              <div className="w-8 h-8 border-t-2 border-b-2 border-gray-400 rounded-full animate-spin"></div>
+    <div className="flex flex-col">
+      <div
+        className={`block aspect-[3/4] overflow-hidden bg-gray-100 relative group ${!imageLoaded ? "animate-pulse" : ""}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {talent.profileImage ? (
+          <>
+            <div
+              className={`w-full h-full transition-opacity duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+            >
+              <img
+                ref={imageRef}
+                src={talent.profileImage}
+                alt={`${talent.firstName} ${talent.lastName}`}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageLoaded(true)}
+              />
             </div>
-          )}
 
-          {/* Overlay with talent info - visible on hover for desktop */}
-          <div
-            className={`absolute inset-0 bg-black bg-opacity-60 flex flex-col justify-center items-center text-white p-4 transition-opacity duration-300 ${
-              isHovered ? "opacity-100" : "opacity-0"
-            } hidden md:flex`}
-          >
-            <div className="text-center font-bold uppercase tracking-wider mb-2">
+            {/* Loading placeholder */}
+            {!imageLoaded && (
+              <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
+                <div className="w-8 h-8 border-t-2 border-b-2 border-gray-400 rounded-full animate-spin"></div>
+              </div>
+            )}
+
+            {/* Overlay with talent info - visible on hover for desktop */}
+            <div
+              className={`absolute inset-0 bg-gradient-to-t from-black/80 to-black/40 flex flex-col justify-end items-center text-white p-4 transition-opacity duration-300 ${
+                isHovered ? "opacity-100" : "opacity-0"
+              } hidden lg:flex`}
+            >
+              <div className="text-center font-bold uppercase tracking-wider mb-2">
+                {talent.firstName} {talent.lastName}
+              </div>
+              {talentDetails && (
+                <div className="text-center text-xs tracking-wide mb-2 opacity-90">
+                  {talentDetails}
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-200">
+            <span className="text-gray-400 text-sm">
               {talent.firstName} {talent.lastName}
-            </div>
-            {formatMeasurements()}
-            {formatColors()}
+            </span>
           </div>
+        )}
+      </div>
 
-          {/* Always visible info for mobile */}
-          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white p-2 md:hidden">
-            <div className="text-center text-sm font-bold uppercase tracking-wider">
-              {talent.firstName} {talent.lastName}
-            </div>
-            <div className="text-center text-xs">
-              {formatMeasurements()}
-              {formatColors()}
-            </div>
-          </div>
-        </>
-      ) : (
-        <div className="w-full h-full flex items-center justify-center bg-gray-200">
-          <span className="text-gray-400 text-sm">
-            {talent.firstName} {talent.lastName}
-          </span>
+      {/* Mobile info - below the image */}
+      <div className="lg:hidden mt-2">
+        <div className="text-sm font-medium uppercase tracking-wider text-center">
+          {talent.firstName} {talent.lastName}
         </div>
-      )}
+        {talentDetails && (
+          <div className="text-xs text-gray-600 text-center mt-1 truncate">
+            {talentDetails}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

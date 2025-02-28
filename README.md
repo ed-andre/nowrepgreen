@@ -4,7 +4,7 @@ A modern web application for agencies to showcase their talents and portfolios t
 
 ## Overview
 
-NowRepGreen is part of the NowRep ecosystem, focusing specifically on the public-facing portfolio platform. While NowRepBlue handles the administrative and management aspects, NowRepGreen provides a beautiful, performant interface for:
+NowRepGreen is part of the NowRep suite, focusing specifically on the public-facing portfolio platform. While NowRepBlue handles the administrative and management aspects, NowRepGreen provides a beautiful, performant interface for:
 
 - Agency profile and branding
 - Talent portfolios and profiles
@@ -13,7 +13,7 @@ NowRepGreen is part of the NowRep ecosystem, focusing specifically on the public
 
 ## Sample Portfolio Site
 
-The repository includes a fully functional modeling agency portfolio site that demonstrates the capabilities of the NowRep ecosystem:
+The repository includes a fully functional modeling agency portfolio site that demonstrates the capabilities of the NowRep suite:
 
 ### Key Features
 

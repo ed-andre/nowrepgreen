@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
+import { Link } from "react-router";
+
 interface MediaItem {
   id: string;
   mediaId: string;
@@ -20,6 +22,9 @@ export interface PortfolioGalleryProps {
   title?: string;
   talentName: string;
   onImagesLoaded?: () => void;
+  isNonDefaultPortfolio?: boolean;
+  handleBackToDefaultPortfolio?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  currentBoardSlug?: string;
 }
 
 // Default cover image for videos without one
@@ -30,17 +35,32 @@ export function PortfolioGallery({
   title,
   talentName,
   onImagesLoaded,
+  isNonDefaultPortfolio = false,
+  handleBackToDefaultPortfolio,
+  currentBoardSlug,
 }: PortfolioGalleryProps) {
   // Refs for image dimensions
   const imageRefs = useRef<Record<string, HTMLImageElement | null>>({});
+  // Ref for video metadata
+  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
   // Track which images have been processed for orientation
   const [processedImages, setProcessedImages] = useState<Set<string>>(
     new Set(),
   );
 
+  // Track which videos have been processed for orientation
+  const [processedVideos, setProcessedVideos] = useState<Set<string>>(
+    new Set(),
+  );
+
   // Track image orientations
   const [imageOrientations, setImageOrientations] = useState<Record<string, "portrait" | "landscape">>(
+    {},
+  );
+
+  // Track video orientations
+  const [videoOrientations, setVideoOrientations] = useState<Record<string, "portrait" | "landscape">>(
     {},
   );
 
@@ -54,6 +74,11 @@ export function PortfolioGallery({
   const totalImages = mediaItems.filter(
     (item) => item.type.toLowerCase() === "image",
   ).length;
+
+  // Ref for the top back link
+  const topBackLinkRef = useRef<HTMLDivElement>(null);
+  // State to track if bottom link should be visible
+  const [showBottomLink, setShowBottomLink] = useState(false);
 
   // Function to determine image orientation - fixed to prevent infinite loops
   const checkImageOrientation = useCallback(
@@ -78,6 +103,67 @@ export function PortfolioGallery({
       }
     },
     [processedImages],
+  );
+
+  // Function to determine video orientation from metadata or dimensions
+  const checkVideoOrientation = useCallback(
+    (videoId: string, item: MediaItem) => {
+      if (processedVideos.has(videoId)) return;
+
+      // If we have width and height metadata, use that
+      if (item.width && item.height) {
+        const isPortrait = item.height > item.width;
+
+        setVideoOrientations((prev) => ({
+          ...prev,
+          [videoId]: isPortrait ? "portrait" : "landscape",
+        }));
+
+        setProcessedVideos((prev) => {
+          const newSet = new Set(prev);
+          newSet.add(videoId);
+          return newSet;
+        });
+      }
+      // Otherwise, we'll try to determine from the cover image or default to landscape
+      else {
+        // Default to landscape if we can't determine
+        const orientation = "landscape";
+
+        // If there's a cover image, we can try to load it to determine orientation
+        if (item.coverImage) {
+          const img = new Image();
+          img.onload = () => {
+            const isPortrait = img.naturalHeight > img.naturalWidth;
+
+            setVideoOrientations((prev) => ({
+              ...prev,
+              [videoId]: isPortrait ? "portrait" : "landscape",
+            }));
+
+            setProcessedVideos((prev) => {
+              const newSet = new Set(prev);
+              newSet.add(videoId);
+              return newSet;
+            });
+          };
+          img.src = item.coverImage;
+        } else {
+          // If no cover image, default to landscape
+          setVideoOrientations((prev) => ({
+            ...prev,
+            [videoId]: "landscape",
+          }));
+
+          setProcessedVideos((prev) => {
+            const newSet = new Set(prev);
+            newSet.add(videoId);
+            return newSet;
+          });
+        }
+      }
+    },
+    [processedVideos],
   );
 
   // Handle image load event
@@ -106,6 +192,16 @@ export function PortfolioGallery({
       }
     });
   }, [checkImageOrientation, processedImages]);
+
+  // Process video orientations on component mount
+  useEffect(() => {
+    // Process all videos to determine orientation
+    mediaItems.forEach((item) => {
+      if (item.type.toLowerCase() === "video") {
+        checkVideoOrientation(item.id, item);
+      }
+    });
+  }, [mediaItems, checkVideoOrientation]);
 
   // Sort media items by order
   const sortedMediaItems = [...mediaItems].sort((a, b) => a.order - b.order);
@@ -147,9 +243,13 @@ export function PortfolioGallery({
 
       const itemType = item.type.toLowerCase();
 
-      // Handle videos (always in their own row)
+      // Handle videos based on their orientation
       if (itemType === "video") {
-        rows.push([{ item, isPortrait: false }]);
+        const orientation = videoOrientations[item.id] || "landscape";
+        const isPortrait = orientation === "portrait";
+
+        // Videos get their own row
+        rows.push([{ item, isPortrait }]);
         continue;
       }
 
@@ -218,10 +318,13 @@ export function PortfolioGallery({
         <div className="relative w-full h-full">
           {isPlaying ? (
             <video
+              ref={(el) => {
+                videoRefs.current[item.id] = el;
+              }}
               src={item.url}
               controls
               autoPlay
-              className="w-full h-full object-cover"
+              className={`w-full h-full ${isPortrait ? "object-contain" : "object-cover"}`}
               onPause={() =>
                 setPlayingVideos((prev) => ({ ...prev, [item.id]: false }))
               }
@@ -244,7 +347,7 @@ export function PortfolioGallery({
               <img
                 src={item.coverImage || DEFAULT_VIDEO_COVER}
                 alt={item.caption || `${talentName} video thumbnail`}
-                className="w-full h-full object-cover"
+                className={`w-full h-full ${isPortrait ? "object-contain" : "object-cover"}`}
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-16 h-16 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
@@ -260,15 +363,58 @@ export function PortfolioGallery({
     return null;
   };
 
+  // Check if top link is visible
+  useEffect(() => {
+    if (!isNonDefaultPortfolio || !handleBackToDefaultPortfolio) return;
+
+    const checkVisibility = () => {
+      if (!topBackLinkRef.current) return;
+
+      const rect = topBackLinkRef.current.getBoundingClientRect();
+      // Show bottom link if top link is out of viewport
+      setShowBottomLink(rect.bottom <= 0);
+    };
+
+    // Initial check
+    checkVisibility();
+
+    // Add scroll listener
+    window.addEventListener('scroll', checkVisibility);
+
+    return () => {
+      window.removeEventListener('scroll', checkVisibility);
+    };
+  }, [isNonDefaultPortfolio, handleBackToDefaultPortfolio]);
+
+  // Back to Main Portfolio link component
+  const BackToMainPortfolioLink = () => (
+    <button
+      onClick={handleBackToDefaultPortfolio}
+      className="text-xs uppercase tracking-wider text-gray-500 hover:text-black transition-colors flex items-center"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Main Portfolio
+    </button>
+  );
+
   return (
     <div className="mb-8">
       {title && <h3 className="text-md font-medium mb-4">{title}</h3>}
+
+      {/* Top Back to Main Portfolio link */}
+      {isNonDefaultPortfolio && handleBackToDefaultPortfolio && (
+        <div className="mb-4" ref={topBackLinkRef}>
+          <BackToMainPortfolioLink />
+        </div>
+      )}
 
       <div className="space-y-6">
         {galleryRows.map((row, rowIndex) => (
           <div
             key={`row-${rowIndex}`}
-            className={`grid ${row.length > 1 ? "grid-cols-2 gap-4" : "grid-cols-1"}`}
+            className={`grid ${row.length > 1 ? "lg:grid-cols-2" : "lg:grid-cols-1"} md:grid-cols-1 sm:grid-cols-1 gap-4`}
           >
             {row.map(({ item, isPortrait }) => (
               <div
@@ -289,6 +435,13 @@ export function PortfolioGallery({
           </div>
         ))}
       </div>
+
+      {/* Bottom Back to Main Portfolio link - only shown when top link is not visible */}
+      {isNonDefaultPortfolio && handleBackToDefaultPortfolio && showBottomLink && (
+        <div className="mt-6">
+          <BackToMainPortfolioLink />
+        </div>
+      )}
     </div>
   );
 }

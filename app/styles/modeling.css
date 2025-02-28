@@ -281,3 +281,9 @@
   border-color: #7f1d1d;
   background-color: #450a0a;
 }
+
+/* Custom utility classes */
+.text-2xs {
+  font-size: 0.65rem;
+  line-height: 1rem;
+}

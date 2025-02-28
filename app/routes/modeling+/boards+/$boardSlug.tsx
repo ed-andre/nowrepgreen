@@ -357,17 +357,22 @@ export default function BoardDetail() {
         className="min-h-screen transition-opacity duration-300 ease-in-out flex flex-col"
         style={{ opacity: isPageVisible ? 1 : 0 }}
       >
-        {/* fixed at the top */}
-        <div className="sticky top-0 z-50">
+        {/* Header - fixed at the top with highest z-index */}
+        <div className="sticky top-0 z-[100] w-full">
           <AgencyHeader
             handleNavigation={handleNavigation}
             isTransparent={viewMode === "profile"}
+            showMobileMenu={true}
+            currentPath={location.pathname}
+            showBoardsMenu={true}
+            boards={allBoards}
+            currentBoardSlug={currentBoardSlug}
           />
         </div>
 
-        <div className="flex flex-col md:flex-row w-full px-6 md:px-12 md:pr-28 flex-1">
-          {/* Sidebar */}
-          <div className="md:w-64 flex-shrink-0 md:sticky md:top-24 md:max-h-[calc(100vh-6rem)] md:overflow-y-auto">
+        <div className="flex flex-col lg:flex-row w-full px-6 lg:px-12 flex-1">
+          {/* Sidebar - hide on mobile and iPad */}
+          <div className="hidden lg:block lg:w-64 flex-shrink-0 lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
             <SidebarMenu
               boards={allBoards}
               currentBoardSlug={currentBoardSlug}
@@ -403,10 +408,14 @@ export default function BoardDetail() {
               onImagesLoaded={() => setImagesLoaded(true)}
               showBioAndHero={!isViewingNonDefaultPortfolio}
               portfolioTitle={boardPortfolio?.title}
+              nonDefaultPortfolios={nonDefaultPortfolios || []}
+              currentPortfolioId={portfolioId}
+              handlePortfolioSelect={handlePortfolioSelect}
+              handleBackToDefaultPortfolio={handleBackToDefaultPortfolio}
             />
           ) : (
-            <div className="flex-1 py-4 md:py-6 overflow-auto">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="flex-1 py-4 lg:py-6 overflow-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
                 {models.map((model) => (
                   <Link
                     key={model.id}
@@ -431,7 +440,7 @@ export default function BoardDetail() {
         !contentReady ||
         (viewMode === "profile" && !imagesLoaded)) && (
         <div
-          className="fixed inset-0 bg-white z-50 flex items-center justify-center transition-opacity duration-300 ease-in-out pointer-events-none"
+          className="fixed inset-0 bg-white z-[90] flex items-center justify-center transition-opacity duration-300 ease-in-out pointer-events-none"
           style={{
             opacity: isPageVisible ? 0 : 1,
             pointerEvents: isPageVisible ? "none" : "auto",

@@ -15,10 +15,11 @@ export function HeaderMenu({
 }: HeaderMenuProps) {
   return (
     <div
-      className={`py-2 text-center relative ${position === "header" ? "mt-2 mb-8" : ""}`}
-      style={{ zIndex: 10 }}
+      className={`py-2 text-center relative ${position === "header" ? "mt-0" : ""}`}
+      style={{ zIndex: 20 }}
     >
-      <div className="flex justify-center">
+      {/* Desktop Menu */}
+      <div className="hidden lg:flex justify-center">
         <MenuList
           textColor={textColor}
           className="flex space-x-10"

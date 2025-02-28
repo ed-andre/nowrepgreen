@@ -19,6 +19,7 @@ interface MenuListProps {
   itemClassName?: string;
   activeItemClassName?: string;
   currentPath?: string;
+  centered?: boolean;
 }
 
 export function MenuList({
@@ -27,6 +28,7 @@ export function MenuList({
   itemClassName = "",
   activeItemClassName = "text-black font-medium",
   currentPath = "",
+  centered = false,
 }: MenuListProps) {
   return (
     <ul className={className}>
@@ -35,8 +37,8 @@ export function MenuList({
           <Link
             to={item.path}
             className={`uppercase tracking-wider text-sm transition-colors duration-300 hover:text-black ${
-              currentPath === item.path ? activeItemClassName : ""
-            }`}
+              centered ? "block w-full text-center" : ""
+            } ${currentPath === item.path ? activeItemClassName : ""}`}
             style={{ color: currentPath === item.path ? undefined : textColor }}
           >
             {item.label}

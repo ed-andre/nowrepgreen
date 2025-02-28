@@ -4,9 +4,11 @@ import { type LoaderFunctionArgs } from "react-router";
 import { useLoaderData, Link, useNavigate, useLocation } from "react-router";
 
 import {
-  AgencyHeader,
-  Footer,
+  LoadingState,
+  ErrorDisplay,
   SidebarMenu,
+  AgencyHeader,
+  TalentCard,
   TalentSearch,
 } from "~/components/modeling";
 import { searchAnimations } from "~/components/modeling/TalentSearch";
@@ -244,10 +246,17 @@ export default function TalentDirectory() {
       />
 
       {/* Header - Made sticky via CSS */}
-      <AgencyHeader
-        isTransparent={true}
-        textColor={hoveredTalent ? "white" : "black"}
-      />
+      <div className="sticky top-0 z-50 w-full">
+        <AgencyHeader
+          isTransparent={true}
+          textColor={hoveredTalent ? "white" : "black"}
+          showMobileMenu={true}
+          currentPath={location.pathname}
+          showBoardsMenu={true}
+          boards={allBoards}
+          handleNavigation={handleNavigation}
+        />
+      </div>
 
       {/* Search Component - Positioned absolutely to center it */}
       <TalentSearch
@@ -264,9 +273,9 @@ export default function TalentDirectory() {
       />
 
       {/* Main content */}
-      <div className="flex-grow flex flex-col md:flex-row w-full relative z-10 mt-32">
-        {/* Sidebar - Made sticky */}
-        <div className="md:w-64 flex-shrink-0 md:fixed md:left-0 md:top-24 md:h-[calc(100vh-6rem)] md:overflow-y-auto px-6 md:py-4 md:box-border overflow-x-hidden">
+      <div className="flex flex-col md:flex-row mt-32 relative" style={{ zIndex: 10 }}>
+        {/* Sidebar - Made sticky and hidden on mobile and iPad */}
+        <div className="hidden lg:block lg:w-64 flex-shrink-0 lg:fixed lg:left-0 lg:top-24 lg:h-[calc(100vh-6rem)] lg:overflow-y-auto px-6 lg:py-4 lg:box-border overflow-x-hidden">
           <SidebarMenu
             boards={allBoards}
             currentPath={location.pathname}
@@ -275,7 +284,7 @@ export default function TalentDirectory() {
         </div>
 
         {/* Main content area - Adjusted for fixed sidebar and search */}
-        <div className="flex-grow flex flex-col items-center justify-start md:ml-64 px-6 md:px-12">
+        <div className="flex-grow flex flex-col items-center justify-start lg:ml-64 px-6 md:px-12">
           <div className="w-full max-w-full">
             {/* Boards and talents */}
             {filteredBoards.length > 0 ? (

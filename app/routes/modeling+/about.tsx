@@ -124,7 +124,15 @@ export default function AboutUs() {
       />
 
       {/* Header - Explicitly set to white text */}
-      <AgencyHeader isTransparent={true} textColor="white" />
+      <div className="sticky top-0 z-50 w-full">
+        <AgencyHeader
+          isTransparent={true}
+          textColor="white"
+          showMobileMenu={true}
+          currentPath={location.pathname}
+          handleNavigation={handleNavigation}
+        />
+      </div>
 
       {/* Main content */}
       <div className="flex-grow flex flex-col md:flex-row w-full relative z-10">
