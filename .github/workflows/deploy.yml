@@ -216,12 +216,9 @@ jobs:
 
             echo "Found volume ID: $VOLUME_ID"
 
-            # Get current timestamp for the snapshot name
-            TIMESTAMP=$(date +%Y%m%d%H%M%S)
-
             # Create a new snapshot using the volume ID
             echo "Creating snapshot for volume $VOLUME_ID"
-            flyctl volumes snapshot create "$VOLUME_ID" --snapshot-name "pre-deploy-$TIMESTAMP"
+            flyctl volumes snapshot create "$VOLUME_ID"
 
             # List all snapshots for this volume
             SNAPSHOTS=$(flyctl volumes snapshots list "$VOLUME_ID" --json)
