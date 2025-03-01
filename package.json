@@ -14,7 +14,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
-    "postinstall": "prisma generate",
+    "postinstall": "node -e \"const fs=require('fs'); if(fs.existsSync('./prisma/schema.prisma')) { require('child_process').execSync('prisma generate', {stdio: 'inherit'}) }\"",
     "test": "cross-env NODE_ENV=test dotenv -e .env.test -- vitest",
     "test:dev": "cross-env NODE_ENV=test dotenv -e .env.test -- vitest --run",
     "test:prod": "cross-env NODE_ENV=production vitest --run",

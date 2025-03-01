@@ -9,17 +9,19 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Generate Prisma client
+# Copy Prisma schema first
 FROM development-dependencies-env AS prisma-env
 COPY prisma ./prisma
 # Force Prisma to generate for the correct platform
 ENV PRISMA_BINARY_PLATFORM=linux-musl-openssl-3.0.x
 RUN npx prisma generate
 
-# Production dependencies stage
+# Production dependencies stage - copy prisma schema first to avoid postinstall errors
 FROM base AS production-dependencies-env
 WORKDIR /app
 COPY package.json package-lock.json ./
+# Copy prisma schema before installing dependencies to avoid postinstall errors
+COPY prisma ./prisma
 RUN npm ci --omit=dev
 
 # Build stage
