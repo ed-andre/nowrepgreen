@@ -196,46 +196,6 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-      # Create a snapshot of the volume before deployment
-      - name: Create pre-deployment backup
-        run: |
-          # Check if the volume exists and get its ID
-          VOLUMES=$(flyctl volumes list --app ${{ steps.app-name.outputs.value }}-staging --json)
-          VOLUME_EXISTS=$(echo "$VOLUMES" | jq -r 'length > 0')
-
-          if [ "$VOLUME_EXISTS" = "true" ]; then
-            echo "Volume exists, creating backup..."
-
-            # Get the volume ID for the 'data' volume
-            VOLUME_ID=$(echo "$VOLUMES" | jq -r '.[] | select(.name=="data") | .id')
-
-            if [ -z "$VOLUME_ID" ]; then
-              echo "No volume with name 'data' found. Skipping backup."
-              exit 0
-            fi
-
-            echo "Found volume ID: $VOLUME_ID"
-
-            # Create a new snapshot using the volume ID
-            echo "Creating snapshot for volume $VOLUME_ID"
-            flyctl volumes snapshot create "$VOLUME_ID"
-
-            # List all snapshots for this volume
-            SNAPSHOTS=$(flyctl volumes snapshots list "$VOLUME_ID" --json)
-
-            # Keep only the most recent snapshot (delete others)
-            echo "$SNAPSHOTS" | jq -r '.[] | select(.name | startswith("pre-deploy-")) | .id' | sort | head -n -1 | while read -r SNAPSHOT_ID; do
-              if [ ! -z "$SNAPSHOT_ID" ]; then
-                echo "Deleting old snapshot: $SNAPSHOT_ID"
-                flyctl volumes snapshots destroy "$SNAPSHOT_ID" --yes
-              fi
-            done
-          else
-            echo "No volumes found for app ${{ steps.app-name.outputs.value }}-staging. Skipping backup."
-          fi
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
       - name: Install dependencies
         run: npm ci
 
