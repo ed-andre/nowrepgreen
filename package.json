@@ -3,11 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "cross-env NODE_ENV=production dotenv -e .env.production -- react-router build",
+    "build": "react-router build",
     "dev": "cross-env DEBUG=false NODE_ENV=development react-router dev",
     "dev:test": "cross-env DEBUG=false NODE_ENV=test dotenv -e .env.test -- react-router dev",
     "dev:debug": "cross-env  NODE_ENV=development react-router dev",
-    "start": "cross-env DEBUG=false NODE_ENV=production dotenv -e .env.production -- react-router-serve ./build/server/index.js",
+    "start": "react-router-serve ./build/server/index.js",
     "start:debug": "cross-env NODE_ENV=production dotenv -e .env.production -- react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
