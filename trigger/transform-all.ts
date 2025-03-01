@@ -2,7 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { Prisma } from "@prisma/client";
 import { task } from "@trigger.dev/sdk/v3";
 
-import { prisma } from "./db.server";
+import { prismaForTrigger } from "./db";
 
 interface TransformResult {
   entity: string;
@@ -132,7 +132,7 @@ interface TalentSocial {
 }
 
 async function getNextVersion(entity: string) {
-  const current = await prisma.syncMetadata.findFirst({
+  const current = await prismaForTrigger.syncMetadata.findFirst({
     where: { entityName: entity },
     orderBy: { id: "desc" }, // Get the latest record
   });
@@ -205,7 +205,7 @@ async function updateVersionAndViews(
 
 async function transformBoards(): Promise<TransformResult> {
   try {
-    const latestJson = await prisma.boardsJson.findFirst({
+    const latestJson = await prismaForTrigger.boardsJson.findFirst({
       orderBy: { createdAt: "desc" },
     });
 
@@ -221,7 +221,7 @@ async function transformBoards(): Promise<TransformResult> {
       previousVersion: oldVersion ? `boards_v${oldVersion}` : "none",
     });
 
-    await prisma.$transaction(async (tx) => {
+    await prismaForTrigger.$transaction(async (tx) => {
       const targetTable = `boards_v${newVersion}`;
 
       // Clear the target table first
@@ -287,7 +287,7 @@ async function transformBoards(): Promise<TransformResult> {
 
 async function transformBoardsTalents(): Promise<TransformResult> {
   try {
-    const latestJson = await prisma.boardsTalentsJson.findFirst({
+    const latestJson = await prismaForTrigger.boardsTalentsJson.findFirst({
       orderBy: { createdAt: "desc" },
     });
 
@@ -303,7 +303,7 @@ async function transformBoardsTalents(): Promise<TransformResult> {
       previousVersion: oldVersion ? `boardstalents_v${oldVersion}` : "none",
     });
 
-    await prisma.$transaction(async (tx) => {
+    await prismaForTrigger.$transaction(async (tx) => {
       const targetTable = `boardstalents_v${newVersion}`;
 
       // Clear the target table first
@@ -368,7 +368,7 @@ async function transformBoardsTalents(): Promise<TransformResult> {
 
 async function transformBoardsPortfolios(): Promise<TransformResult> {
   try {
-    const latestJson = await prisma.boardsPortfoliosJson.findFirst({
+    const latestJson = await prismaForTrigger.boardsPortfoliosJson.findFirst({
       orderBy: { createdAt: "desc" },
     });
 
@@ -384,7 +384,7 @@ async function transformBoardsPortfolios(): Promise<TransformResult> {
       previousVersion: oldVersion ? `boardsportfolios_v${oldVersion}` : "none",
     });
 
-    await prisma.$transaction(async (tx) => {
+    await prismaForTrigger.$transaction(async (tx) => {
       const targetTable = `boardsportfolios_v${newVersion}`;
 
       // Clear the target table first
@@ -449,7 +449,7 @@ async function transformBoardsPortfolios(): Promise<TransformResult> {
 
 async function transformPortfoliosMedia(): Promise<TransformResult> {
   try {
-    const latestJson = await prisma.portfoliosMediaJson.findFirst({
+    const latestJson = await prismaForTrigger.portfoliosMediaJson.findFirst({
       orderBy: { createdAt: "desc" },
     });
 
@@ -465,7 +465,7 @@ async function transformPortfoliosMedia(): Promise<TransformResult> {
       previousVersion: oldVersion ? `portfoliosmedia_v${oldVersion}` : "none",
     });
 
-    await prisma.$transaction(async (tx) => {
+    await prismaForTrigger.$transaction(async (tx) => {
       const targetTable = `portfoliosmedia_v${newVersion}`;
 
       // Clear the target table first - using DELETE FROM to ensure complete cleanup
@@ -545,7 +545,7 @@ async function transformPortfoliosMedia(): Promise<TransformResult> {
 
 async function transformMediaTags(): Promise<TransformResult> {
   try {
-    const latestJson = await prisma.mediaTagsJson.findFirst({
+    const latestJson = await prismaForTrigger.mediaTagsJson.findFirst({
       orderBy: { createdAt: "desc" },
     });
 
@@ -561,7 +561,7 @@ async function transformMediaTags(): Promise<TransformResult> {
       previousVersion: oldVersion ? `mediatags_v${oldVersion}` : "none",
     });
 
-    await prisma.$transaction(async (tx) => {
+    await prismaForTrigger.$transaction(async (tx) => {
       const targetTable = `mediatags_v${newVersion}`;
       const junctionTable = `mediatags_junction_v${newVersion}`;
 
@@ -645,7 +645,7 @@ async function transformMediaTags(): Promise<TransformResult> {
 
 async function transformTalents(): Promise<TransformResult> {
   try {
-    const latestJson = await prisma.talentsJson.findFirst({
+    const latestJson = await prismaForTrigger.talentsJson.findFirst({
       orderBy: { createdAt: "desc" },
     });
 
@@ -661,7 +661,7 @@ async function transformTalents(): Promise<TransformResult> {
       previousVersion: oldVersion ? `talents_v${oldVersion}` : "none",
     });
 
-    await prisma.$transaction(async (tx) => {
+    await prismaForTrigger.$transaction(async (tx) => {
       const targetTable = `talents_v${newVersion}`;
 
       // Clear the target table first
@@ -726,7 +726,7 @@ async function transformTalents(): Promise<TransformResult> {
 
 async function transformTalentsPortfolios(): Promise<TransformResult> {
   try {
-    const latestJson = await prisma.talentsPortfoliosJson.findFirst({
+    const latestJson = await prismaForTrigger.talentsPortfoliosJson.findFirst({
       orderBy: { createdAt: "desc" },
     });
 
@@ -743,7 +743,7 @@ async function transformTalentsPortfolios(): Promise<TransformResult> {
       previousVersion: oldVersion ? `talentsportfolios_v${oldVersion}` : "none",
     });
 
-    await prisma.$transaction(async (tx) => {
+    await prismaForTrigger.$transaction(async (tx) => {
       const targetTable = `talentsportfolios_v${newVersion}`;
 
       // Clear the target table first
@@ -815,7 +815,7 @@ async function transformTalentsPortfolios(): Promise<TransformResult> {
 
 async function transformTalentsMeasurements(): Promise<TransformResult> {
   try {
-    const latestJson = await prisma.talentsMeasurementsJson.findFirst({
+    const latestJson = await prismaForTrigger.talentsMeasurementsJson.findFirst({
       orderBy: { createdAt: "desc" },
     });
 
@@ -835,7 +835,7 @@ async function transformTalentsMeasurements(): Promise<TransformResult> {
         : "none",
     });
 
-    await prisma.$transaction(async (tx) => {
+    await prismaForTrigger.$transaction(async (tx) => {
       const targetTable = `talentsmeasurements_v${newVersion}`;
 
       // Clear the target table first
@@ -920,7 +920,7 @@ async function transformTalentsMeasurements(): Promise<TransformResult> {
 
 async function transformTalentsSocials(): Promise<TransformResult> {
   try {
-    const latestJson = await prisma.talentsSocialsJson.findFirst({
+    const latestJson = await prismaForTrigger.talentsSocialsJson.findFirst({
       orderBy: { createdAt: "desc" },
     });
 
@@ -936,7 +936,7 @@ async function transformTalentsSocials(): Promise<TransformResult> {
       previousVersion: oldVersion ? `talentssocials_v${oldVersion}` : "none",
     });
 
-    await prisma.$transaction(async (tx) => {
+    await prismaForTrigger.$transaction(async (tx) => {
       const targetTable = `talentssocials_v${newVersion}`;
 
       // Clear the target table first

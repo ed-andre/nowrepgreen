@@ -1,7 +1,7 @@
 import { task } from "@trigger.dev/sdk/v3";
 
 import { API_CONFIG } from "./config";
-import { prisma } from "./db.server";
+import { prismaForTrigger } from "./db";
 
 interface EndpointConfig {
   name: string;
@@ -13,47 +13,47 @@ const ENDPOINTS: EndpointConfig[] = [
   {
     name: "boards",
     endpoint: API_CONFIG.endpoints.boards,
-    model: prisma.boardsJson,
+    model: prismaForTrigger.boardsJson,
   },
   {
     name: "boardsTalents",
     endpoint: API_CONFIG.endpoints.boardsTalents,
-    model: prisma.boardsTalentsJson,
+    model: prismaForTrigger.boardsTalentsJson,
   },
   {
     name: "boardsPortfolios",
     endpoint: API_CONFIG.endpoints.boardsPortfolios,
-    model: prisma.boardsPortfoliosJson,
+    model: prismaForTrigger.boardsPortfoliosJson,
   },
   {
     name: "portfoliosMedia",
     endpoint: API_CONFIG.endpoints.portfoliosMedia,
-    model: prisma.portfoliosMediaJson,
+    model: prismaForTrigger.portfoliosMediaJson,
   },
   {
     name: "talents",
     endpoint: API_CONFIG.endpoints.talents,
-    model: prisma.talentsJson,
+    model: prismaForTrigger.talentsJson,
   },
   {
     name: "talentsPortfolios",
     endpoint: API_CONFIG.endpoints.talentsPortfolios,
-    model: prisma.talentsPortfoliosJson,
+    model: prismaForTrigger.talentsPortfoliosJson,
   },
   {
     name: "talentsMeasurements",
     endpoint: API_CONFIG.endpoints.talentsMeasurements,
-    model: prisma.talentsMeasurementsJson,
+    model: prismaForTrigger.talentsMeasurementsJson,
   },
   {
     name: "talentsSocials",
     endpoint: API_CONFIG.endpoints.talentsSocials,
-    model: prisma.talentsSocialsJson,
+    model: prismaForTrigger.talentsSocialsJson,
   },
   {
     name: "mediaTags",
     endpoint: API_CONFIG.endpoints.mediaTags,
-    model: prisma.mediaTagsJson,
+    model: prismaForTrigger.mediaTagsJson,
   },
 ];
 
