@@ -228,5 +228,7 @@ jobs:
         env:
           TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
           SYNC_SECRET_KEY: ${{ secrets.SYNC_SECRET_KEY }}
+          TARGET_API_URL: ${{ secrets.TARGET_API_URL }}
+          SOURCE_API_URL: ${{ secrets.SOURCE_API_URL }}
         run: |
           npx run trigger:deploy
