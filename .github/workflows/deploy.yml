@@ -196,9 +196,18 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
+      - name: Disable Husky for deployment
+        run: |
+          # Create a backup of the original package.json
+          cp package.json package.json.bak
+
+          # Remove the prepare script from package.json
+          jq 'del(.scripts.prepare)' package.json > package.json.tmp && mv package.json.tmp package.json
+
+          echo "Modified package.json to remove Husky prepare script"
+
       - name: Install dependencies
         run: npm ci
-        
 
       - name: Deploy Dev Branch
         if: ${{ github.ref == 'refs/heads/dev' }}
