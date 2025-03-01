@@ -230,6 +230,12 @@ jobs:
           # Set the correct Prisma binary platform for the GitHub runner environment
           PRISMA_BINARY_PLATFORM: debian-openssl-3.0.x
         run: |
+          # Install Prisma engines globally (make sure version matches your Prisma version)
+          npm install -g @prisma/engines@6.4.0
+          # Find and copy the query engine to locations Prisma searches for it
+          sudo cp $(find /usr/local/lib/node_modules/@prisma/engines -name "libquery_engine-debian-openssl-3.0.x.so.node") /tmp/prisma-engines/
+          mkdir -p .prisma/client
+          cp $(find /usr/local/lib/node_modules/@prisma/engines -name "libquery_engine-debian-openssl-3.0.x.so.node") .prisma/client/
           # Generate Prisma client with the correct binary platform before deploying
           npx prisma generate
           npx trigger.dev@latest deploy
