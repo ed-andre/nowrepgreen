@@ -199,22 +199,31 @@ jobs:
       # Create a snapshot of the volume before deployment
       - name: Create pre-deployment backup
         run: |
-          # Get current timestamp for the snapshot name
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          # Check if the volume exists first
+          VOLUME_EXISTS=$(flyctl volumes list --app ${{ steps.app-name.outputs.value }}-staging --json | jq -r 'length > 0')
 
-          # Create a new snapshot
-          flyctl volumes snapshot create data --app ${{ steps.app-name.outputs.value }}-staging --snapshot-name "pre-deploy-$TIMESTAMP"
+          if [ "$VOLUME_EXISTS" = "true" ]; then
+            echo "Volume exists, creating backup..."
 
-          # List all snapshots
-          SNAPSHOTS=$(flyctl volumes snapshots list data --app ${{ steps.app-name.outputs.value }}-staging --json)
+            # Get current timestamp for the snapshot name
+            TIMESTAMP=$(date +%Y%m%d%H%M%S)
 
-          # Keep only the most recent snapshot (delete others)
-          echo "$SNAPSHOTS" | jq -r '.[] | select(.name | startswith("pre-deploy-")) | .id' | sort | head -n -1 | while read -r SNAPSHOT_ID; do
-            if [ ! -z "$SNAPSHOT_ID" ]; then
-              echo "Deleting old snapshot: $SNAPSHOT_ID"
-              flyctl volumes snapshots destroy "$SNAPSHOT_ID" --app ${{ steps.app-name.outputs.value }}-staging --yes
-            fi
-          done
+            # Create a new snapshot
+            flyctl volumes snapshot create data --app ${{ steps.app-name.outputs.value }}-staging --snapshot-name "pre-deploy-$TIMESTAMP"
+
+            # List all snapshots
+            SNAPSHOTS=$(flyctl volumes snapshots list data --app ${{ steps.app-name.outputs.value }}-staging --json)
+
+            # Keep only the most recent snapshot (delete others)
+            echo "$SNAPSHOTS" | jq -r '.[] | select(.name | startswith("pre-deploy-")) | .id' | sort | head -n -1 | while read -r SNAPSHOT_ID; do
+              if [ ! -z "$SNAPSHOT_ID" ]; then
+                echo "Deleting old snapshot: $SNAPSHOT_ID"
+                flyctl volumes snapshots destroy "$SNAPSHOT_ID" --app ${{ steps.app-name.outputs.value }}-staging --yes
+              fi
+            done
+          else
+            echo "No volumes found for app ${{ steps.app-name.outputs.value }}-staging. Skipping backup."
+          fi
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
