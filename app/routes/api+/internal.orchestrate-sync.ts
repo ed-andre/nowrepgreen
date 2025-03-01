@@ -6,7 +6,14 @@ import { orchestrateSyncTask } from "trigger/orchestrator";
 // Validate secret key from request headers
 function validateSecretKey(request: Request) {
   const authHeader = request.headers.get("x-sync-secret");
+
+  // Debug logging for troubleshooting
+  console.log("Debug: Auth header received:", authHeader ? "***" + authHeader.substring(authHeader.length - 4) : "undefined");
+
   const expectedSecret = process.env.SYNC_SECRET_KEY;
+  console.log("Debug: Expected secret exists:", !!expectedSecret);
+  console.log("Debug: Expected secret ends with:", expectedSecret ? "***" + expectedSecret.substring(expectedSecret.length - 4) : "undefined");
+  console.log("Debug: Headers received:", [...request.headers.entries()].map(([key]) => key).join(", "));
 
   if (!authHeader || authHeader !== expectedSecret) {
     throw new Error("Unauthorized: Invalid or missing secret key");
