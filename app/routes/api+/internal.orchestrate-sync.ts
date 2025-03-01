@@ -10,10 +10,18 @@ function validateSecretKey(request: Request) {
   // Debug logging for troubleshooting
   console.log("Debug: Auth header received:", authHeader ? "***" + authHeader.substring(authHeader.length - 4) : "undefined");
 
+  // Get the secret from environment variables
   const expectedSecret = process.env.SYNC_SECRET_KEY;
   console.log("Debug: Expected secret exists:", !!expectedSecret);
   console.log("Debug: Expected secret ends with:", expectedSecret ? "***" + expectedSecret.substring(expectedSecret.length - 4) : "undefined");
   console.log("Debug: Headers received:", [...request.headers.entries()].map(([key]) => key).join(", "));
+  console.log("Debug: All env vars:", Object.keys(process.env).join(", "));
+
+  // If we're in development mode and the secret is missing, allow the request with a warning
+  if (process.env.NODE_ENV === "development" && !expectedSecret && authHeader) {
+    console.warn("WARNING: SYNC_SECRET_KEY is not set in development environment, but proceeding anyway");
+    return;
+  }
 
   if (!authHeader || authHeader !== expectedSecret) {
     throw new Error("Unauthorized: Invalid or missing secret key");
