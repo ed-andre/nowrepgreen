@@ -12,6 +12,8 @@ RUN npm ci
 # Generate Prisma client
 FROM development-dependencies-env AS prisma-env
 COPY prisma ./prisma
+# Force Prisma to generate for the correct platform
+ENV PRISMA_BINARY_PLATFORM=linux-musl-openssl-3.0.x
 RUN npx prisma generate
 
 # Production dependencies stage

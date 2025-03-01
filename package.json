@@ -14,6 +14,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
+    "postinstall": "prisma generate",
     "test": "cross-env NODE_ENV=test dotenv -e .env.test -- vitest",
     "test:dev": "cross-env NODE_ENV=test dotenv -e .env.test -- vitest --run",
     "test:prod": "cross-env NODE_ENV=production vitest --run",

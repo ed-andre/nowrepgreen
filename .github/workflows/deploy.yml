@@ -227,4 +227,9 @@ jobs:
         if: ${{ github.ref == 'refs/heads/dev' }}
         env:
           TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
-        run: npx trigger.dev@latest deploy
+          # Set the correct Prisma binary platform for the GitHub runner environment
+          PRISMA_BINARY_PLATFORM: debian-openssl-3.0.x
+        run: |
+          # Generate Prisma client with the correct binary platform before deploying
+          npx prisma generate
+          npx trigger.dev@latest deploy
