@@ -27,7 +27,8 @@
     "prisma:dev": "cross-env NODE_ENV=development dotenv -e .env.development -- prisma db push",
     "prisma:test": "cross-env NODE_ENV=test dotenv -e .env.test -- prisma db push",
     "prisma:prod": "cross-env NODE_ENV=production dotenv -e .env.production -- prisma db push",
-    "trigger": "npx trigger.dev@latest dev"
+    "trigger": "npx trigger.dev@latest dev",
+    "trigger:deploy": "npx trigger.dev@latest deploy"
   },
   "prettier": {},
   "eslintIgnore": [
