@@ -2,21 +2,6 @@ import { createId } from "@paralleldrive/cuid2";
 import { Prisma } from "@prisma/client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 
-import { prisma } from "~/db.server";
-
-// Import transform functions from a separate file to keep this file clean
-import {
-  transformBoards,
-  transformBoardsTalents,
-  transformBoardsPortfolios,
-  transformPortfoliosMedia,
-  transformMediaTags,
-  transformTalents,
-  transformTalentsPortfolios,
-  transformTalentsMeasurements,
-  transformTalentsSocials,
-} from "~/services/transforms.server";
-
 // Validate the secret key from the request
 function validateSecretKey(request: Request) {
   const authHeader = request.headers.get("Authorization");
@@ -29,19 +14,6 @@ function validateSecretKey(request: Request) {
     throw new Response("Invalid authorization", { status: 403 });
   }
 }
-
-// Map entity names to their transform functions
-const transformFunctions: Record<string, () => Promise<any>> = {
-  talents: transformTalents,
-  talentsmeasurements: transformTalentsMeasurements,
-  talentsportfolios: transformTalentsPortfolios,
-  boards: transformBoards,
-  boardstalents: transformBoardsTalents,
-  boardsportfolios: transformBoardsPortfolios,
-  portfoliosmedia: transformPortfoliosMedia,
-  mediatags: transformMediaTags,
-  talentssocials: transformTalentsSocials,
-};
 
 export async function action({ request, params }: ActionFunctionArgs) {
   try {
@@ -59,6 +31,36 @@ export async function action({ request, params }: ActionFunctionArgs) {
         },
       );
     }
+
+    // Import server-only modules inside the action function
+    // This prevents them from being included in the client bundle
+    const { prisma } = await import("~/db.server");
+
+    // Import transform functions from a separate file to keep this file clean
+    const {
+      transformBoards,
+      transformBoardsTalents,
+      transformBoardsPortfolios,
+      transformPortfoliosMedia,
+      transformMediaTags,
+      transformTalents,
+      transformTalentsPortfolios,
+      transformTalentsMeasurements,
+      transformTalentsSocials,
+    } = await import("~/services/transforms.server");
+
+    // Map entity names to their transform functions
+    const transformFunctions: Record<string, () => Promise<any>> = {
+      talents: transformTalents,
+      talentsmeasurements: transformTalentsMeasurements,
+      talentsportfolios: transformTalentsPortfolios,
+      boards: transformBoards,
+      boardstalents: transformBoardsTalents,
+      boardsportfolios: transformBoardsPortfolios,
+      portfoliosmedia: transformPortfoliosMedia,
+      mediatags: transformMediaTags,
+      talentssocials: transformTalentsSocials,
+    };
 
     // Check if the entity is valid
     if (!Object.keys(transformFunctions).includes(entity)) {
