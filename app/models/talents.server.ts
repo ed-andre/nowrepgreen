@@ -10,6 +10,11 @@ export async function getTalentsByBoardId(boardId: string) {
     },
   });
 
+  // If no talents are associated with this board, return an empty array
+  if (!boardTalents || boardTalents.length === 0) {
+    return [];
+  }
+
   const talentIds = boardTalents.map(
     (bt: Pick<BoardsTalents_current, "talentId">) => bt.talentId,
   );

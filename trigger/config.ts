@@ -22,7 +22,7 @@ export const API_CONFIG = {
   },
   getFullUrl: (endpoint: string) => {
     const url = `${process.env.SOURCE_API_URL}${endpoint}`;
-    console.log("Calling API URL:", url);
+    console.log("Calling SOURCEAPI URL:", url);
     return url;
   },
 };

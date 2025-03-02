@@ -27,8 +27,7 @@ export async function getBoardById(id: string) {
 }
 
 export async function getBoardBySlug(slug: string) {
-  // Convert slug to a case-insensitive regex pattern
-  // This will match board titles that would convert to this slug
+  // Get all boards
   const boards = await prisma.boards_current.findMany({
     select: {
       id: true,
@@ -40,10 +39,13 @@ export async function getBoardBySlug(slug: string) {
 
   // Find the board whose title, when converted to a slug, matches the requested slug
   return boards.find((board) => {
+    // Convert the board title to a slug format for comparison
     const boardSlug = board.title
       .toLowerCase()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9-]/g, "");
+
+    // Compare with the requested slug
     return boardSlug === slug;
   });
 }

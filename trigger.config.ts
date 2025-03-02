@@ -19,7 +19,7 @@ export default defineConfig({
       randomize: true,
     },
   },
-  build:{
+  build: {
     extensions: [
       prismaExtension({
         version: "5.20.0",

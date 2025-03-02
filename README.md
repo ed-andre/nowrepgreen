@@ -34,7 +34,7 @@ The repository includes a fully functional modeling agency portfolio site that d
 
 The sample site demonstrates the data synchronization between NowRepBlue (admin system) and NowRepGreen (public site):
 
-- Changes made in the admin system can be pushed automatically, on a schedule, or manually based on the configuration of the data sync job
+- Changes made in the admin system can be pushed on a schedule or manually based on the configuration of the data sync job
 - Zero-downtime updates through the versioned table architecture
 - Consistent data presentation across all views
 
@@ -55,44 +55,45 @@ For detailed deployment instructions and environment setup, see the [Deployment 
 
 ## Data Pipeline Synchronization Architecture
 
-The platform implements a sophisticated data synchronization system designed for reliability and zero-downtime updates:
+The platform implements an API-driven data synchronization system designed for reliability and zero-downtime updates:
 
 ```mermaid
 graph TD
-    A[NowRepBlue API] -->|Trigger.dev Task| B[sync-all-json Task]
-    B -->|Store Raw JSON| C[JSON Stage Tables]
-    C -->|Trigger.dev Task| D[transform-all-data Task]
-    D -->|Transform & Version| E[Versioned Tables v1/v2]
-    E -->|Dynamic View Switch| F[Current Views]
-    F -->|Serve Data| G[NowRepGreen Application]
-
-    subgraph "Data Storage"
-    C
-    E
-    F
-    end
-
-    subgraph "Transformation Process"
-    B
-    D
-    end
+    A[NowRepBlue API] -->|Manual Trigger or Scheduled| B[NowRepBlue Sync Utility]
+    B -->|API Call| C[Orchestration API Endpoint]
+    C -->|Trigger.dev Task| D[orchestrate-sync-api Task]
+    D -->|Orchestrates| E[sync-all-api Task]
+    E -->|API Call| F[Store JSON API Endpoint]
+    F -->|Store Raw JSON| G[JSON Stage Tables]
+    G -->|Orchestrated by| D
+    D -->|Orchestrates| H[transform-all-api Task]
+    H -->|API Call| I[Transform API Endpoint]
+    I -->|Transform & Version| J[Versioned Tables v1/v2]
+    J -->|Dynamic View Switch| K[Current Views]
+    K -->|Serve Data| L[NowRepGreen Application]
 ```
 
 ### Sync Process Flow
 
-1. **JSON Data Collection**
+1. **Orchestration**
 
-   - Trigger.dev task fetches data from multiple endpoints on a schedule or via manual trigger
-   - Data is stored in JSON stage tables (e.g., `BoardsJson`, `TalentsJson`)
+   - NowRepBlue can trigger the sync process manually through a user-friendly interface
+   - The orchestration task coordinates both sync and transform operations
+   - API-driven approach ensures compatibility with Trigger.dev cloud environment
+
+2. **JSON Data Collection**
+
+   - Sync task fetches data from NowRepBlue API endpoints
+   - Data is stored via API calls to JSON stage tables (e.g., `BoardsJson`, `TalentsJson`)
    - Each sync maintains last 3 versions for rollback capability
 
-2. **Data Transformation**
+3. **Data Transformation**
 
-   - Raw JSON data is transformed into normalized relational structure
+   - Raw JSON data is transformed into normalized relational structure via API calls
    - Handles complex relationships (e.g., Boards-Talents, Talents-Portfolios)
    - Maintains data integrity through foreign key relationships
 
-3. **Version Management**
+4. **Version Management**
    - Each entity type maintains two versioned tables (v1, v2)
    - Active version alternates between v1 and v2
    - Current views automatically point to active version
@@ -178,46 +179,59 @@ TRIGGER_API_KEY=your_trigger_dev_api_key
 SYNC_SECRET_KEY=your_sync_secret_key
 ```
 
-### Sync Tasks Configuration
+### API Endpoints for Synchronization
 
-The data synchronization is triggered through an API endpoint that NowRepBlue calls whenever relevant data changes occur:
+The data synchronization is managed through several API endpoints:
 
-1. **Orchestration Endpoint** (`/api/internal/orchestrate-sync`)
+1. **Orchestration Endpoint** (`/api/internal/orchestrate-sync-api`)
+
+   - Receives sync triggers from NowRepBlue
+   - Validates requests using SYNC_SECRET_KEY
+   - Supports both `Authorization: Bearer` and `x-sync-secret` headers
+   - Returns task ID for monitoring
+
+2. **Store JSON Endpoint** (`/api/internal/sync/store-json`)
+
+   - Accepts entity name and JSON data
+   - Stores data in the appropriate JSON table
+   - Handles cleanup of old records (keeping only 3 most recent)
+
+3. **Transform Endpoint** (`/api/internal/transform/:entity`)
+
+   - Transforms JSON data for a specific entity
+   - Updates versioned tables and views
+
+4. **Task Status Endpoint** (`/api/internal/task-status/:taskId`)
+   - Retrieves status of specific tasks or lists multiple tasks
+   - Supports filtering by task type, status, and limit
+
+### Trigger.dev Tasks
+
+The synchronization process is managed by three main tasks:
+
+1. **Orchestration Task** (`orchestrate-sync-api`)
+
    ```typescript
-   // Endpoint that receives sync triggers from NowRepBlue
-   // Validates requests using SYNC_SECRET_KEY
-   // Available via both GET and POST methods
-   export async function action({ request }: ActionFunctionArgs) {
-     validateSecretKey(request);
-     return await tasks.trigger<typeof orchestrateSyncTask>(
-       "orchestrate-sync",
-       undefined,
-       {},
-     );
-   }
-   ```
-
-The orchestrator then manages two main tasks:
-
-1. **JSON Sync Task** (`sync-all-json`)
-
-   ```typescript
-   // Triggered by the orchestrator when source data changes
-   export const syncAllJson = task({
-     id: "sync-all-json",
-     retry: {
-       maxAttempts: 3,
-       minTimeoutInMs: 1000,
-       maxTimeoutInMs: 10000,
-     },
+   // Coordinates the execution of sync and transform tasks
+   export const orchestrateSyncApi = task({
+     id: "orchestrate-sync-api",
    });
    ```
 
-2. **Data Transform Task** (`transform-all-data`)
+2. **API-Driven Sync Task** (`sync-all-api`)
+
    ```typescript
-   // Triggered after successful JSON sync
-   export const transformAllData = task({
-     id: "transform-all-data",
+   // Fetches data from NowRepBlue API and stores via API calls
+   export const syncAllApi = task({
+     id: "sync-all-api",
+   });
+   ```
+
+3. **API-Driven Transform Task** (`transform-all-api`)
+   ```typescript
+   // Transforms data via API calls
+   export const transformAllDataApi = task({
+     id: "transform-all-data-api",
    });
    ```
 
@@ -229,7 +243,7 @@ Monitor task execution through the Trigger.dev CLI:
 npx @trigger.dev/cli@latest dev
 ```
 
-Or access trigger.dev account online
+Or access the trigger.dev dashboard online.
 
 ## Code Quality
 
