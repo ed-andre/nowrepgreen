@@ -75,6 +75,9 @@ export function TalentProfile({
   // Check if we're viewing a non-default portfolio
   const isNonDefaultPortfolio = !!currentPortfolioId;
 
+  // Check if talent has a bio
+  const hasBio = !!talent.bio && talent.bio.trim() !== "";
+
   // Handle when all images are loaded
   useEffect(() => {
     if (imagesLoaded && onImagesLoaded) {
@@ -141,7 +144,7 @@ export function TalentProfile({
       )}
 
       {/* Hero image and bio side by side - only shown for default portfolio on desktop */}
-      {showBioAndHero && (
+      {showBioAndHero && hasBio && (
         <div className="hidden lg:grid lg:grid-cols-2 gap-8 mb-12">
           {/* Hero image with enhanced styling */}
           <div className="aspect-[3/4] overflow-hidden bg-gray-100 relative talent-hero-container">
@@ -179,7 +182,7 @@ export function TalentProfile({
       )}
 
       {/* Mobile hero image - only shown on small and medium screens for default portfolio */}
-      {showBioAndHero && (
+      {showBioAndHero && hasBio && (
         <div className="lg:hidden mb-8">
           {/* Hero image */}
           <div className="aspect-[3/4] overflow-hidden bg-gray-100 relative talent-hero-container shadow-md rounded-sm">
