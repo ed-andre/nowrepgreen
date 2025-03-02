@@ -45,23 +45,23 @@ export const orchestrateSyncApi = task({
         .triggerAndWait()
         .unwrap();
 
-      // Explicitly check the success property
+      // Check if transform had failures but still completed
       if (transformResult.success !== true) {
-        console.error("Data transformation failed", {
+        console.warn("Data transformation completed with some failures", {
           transformedEntities: transformResult.transformedEntities,
           failedEntities: (transformResult as any).failedEntities || [],
           error: (transformResult as any).error || "Unknown error",
         });
 
-        // Return a failure result with detailed information
+        // Return a partial success result with detailed information
         return {
-          success: false,
+          success: true, // Mark as success even with partial failures
+          partialFailures: true,
           stage: "transform",
           syncResult,
           transformResult,
-          error:
-            (transformResult as any).error ||
-            "Transform task failed without specific error",
+          failedEntities: (transformResult as any).failedEntities || [],
+          error: (transformResult as any).error || "Some transforms failed",
           completedAt: new Date().toISOString(),
         };
       }

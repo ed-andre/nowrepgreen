@@ -102,7 +102,7 @@ export const transformAllDataApi = task({
 
     const results: TransformResult[] = [];
     let hasFailures = false;
-    let firstError = "";
+    const errors: string[] = [];
 
     try {
       // Transform entities in sequence to maintain dependencies
@@ -113,16 +113,25 @@ export const transformAllDataApi = task({
 
         if (!result.success) {
           hasFailures = true;
-          firstError = `Transform failed for ${result.entity}: ${result.error}`;
-          console.error(firstError);
-          break; // Stop processing after first failure
+          const errorMsg = `Transform failed for ${result.entity}: ${result.error}`;
+          errors.push(errorMsg);
+          console.error(errorMsg);
+          // Continue processing other entities instead of breaking
+          console.log(`Continuing with next entity despite failure in ${entity}`);
+        } else {
+          console.log(`Successfully transformed ${entity}`);
         }
-
-        console.log(`Successfully transformed ${entity}`);
       }
 
+      // If any failures occurred, return a partial success result
       if (hasFailures) {
-        throw new Error(firstError);
+        console.warn("Transform process completed with some failures");
+        return {
+          success: false,
+          transformedEntities: results,
+          error: errors.join("; "),
+          failedEntities: results.filter((r) => !r.success).map((r) => r.entity),
+        };
       }
 
       console.log("API-driven transform completed successfully");

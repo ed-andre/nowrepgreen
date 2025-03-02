@@ -264,16 +264,13 @@ export async function transformBoardsTalents(): Promise<TransformResult> {
       orderBy: { createdAt: "desc" },
     });
 
-    if (!latestJson) {
-      throw new Error("No JSON data found for boardstalents");
-    }
-
     // Log the data structure to help diagnose issues
     console.log("BoardsTalents data structure:", {
-      type: typeof latestJson.data,
-      isArray: Array.isArray(latestJson.data),
+      exists: !!latestJson,
+      type: latestJson ? typeof latestJson.data : "N/A",
+      isArray: latestJson ? Array.isArray(latestJson.data) : false,
       keys:
-        typeof latestJson.data === "object" && latestJson.data !== null
+        latestJson && typeof latestJson.data === "object" && latestJson.data !== null
           ? Object.keys(latestJson.data as object)
           : "N/A",
     });
@@ -291,6 +288,19 @@ export async function transformBoardsTalents(): Promise<TransformResult> {
 
       // Clear the target table first
       await tx.$executeRawUnsafe(`DELETE FROM ${targetTable}`);
+
+      // If no data exists, create an empty table and view
+      if (!latestJson || !latestJson.data) {
+        console.log("No data found for boardstalents, creating empty view");
+
+        // Update version metadata and create empty view
+        await updateVersionAndViews(tx, "boardstalents", {
+          newVersion,
+          oldVersion,
+        });
+
+        return;
+      }
 
       // Handle different data structures
       let boardTalentsArray: BoardTalent[] = [];
@@ -324,8 +334,17 @@ export async function transformBoardsTalents(): Promise<TransformResult> {
         }
       }
 
+      // If we couldn't extract any data, create an empty view instead of throwing an error
       if (!boardTalentsArray.length) {
-        throw new Error("Could not extract boardsTalents array from data");
+        console.log("Empty boardsTalents array extracted, creating empty view");
+
+        // Update version metadata and create empty view
+        await updateVersionAndViews(tx, "boardstalents", {
+          newVersion,
+          oldVersion,
+        });
+
+        return;
       }
 
       // Validate the structure before calculating totals
@@ -337,8 +356,17 @@ export async function transformBoardsTalents(): Promise<TransformResult> {
           Array.isArray(board.talents),
       );
 
+      // If no valid data, create an empty view instead of throwing an error
       if (validBoardTalents.length === 0) {
-        throw new Error("No valid boardsTalents records found in data");
+        console.log("No valid boardsTalents records found, creating empty view");
+
+        // Update version metadata and create empty view
+        await updateVersionAndViews(tx, "boardstalents", {
+          newVersion,
+          oldVersion,
+        });
+
+        return;
       }
 
       console.log("Data operation:", {
@@ -731,16 +759,13 @@ export async function transformMediaTags(): Promise<TransformResult> {
       orderBy: { createdAt: "desc" },
     });
 
-    if (!latestJson) {
-      throw new Error("No JSON data found for mediatags");
-    }
-
     // Log the data structure to help diagnose issues
     console.log("MediaTags data structure:", {
-      type: typeof latestJson.data,
-      isArray: Array.isArray(latestJson.data),
+      exists: !!latestJson,
+      type: latestJson ? typeof latestJson.data : "N/A",
+      isArray: latestJson ? Array.isArray(latestJson.data) : false,
       keys:
-        typeof latestJson.data === "object" && latestJson.data !== null
+        latestJson && typeof latestJson.data === "object" && latestJson.data !== null
           ? Object.keys(latestJson.data as object)
           : "N/A",
     });
@@ -760,6 +785,20 @@ export async function transformMediaTags(): Promise<TransformResult> {
       // Clear both tables
       await tx.$executeRawUnsafe(`DELETE FROM "${targetTable}"`);
       await tx.$executeRawUnsafe(`DELETE FROM "${junctionTable}"`);
+
+      // If no data exists, create empty views and return
+      if (!latestJson || !latestJson.data) {
+        console.log("No data found for mediatags, creating empty views");
+
+        // Update version metadata and create empty views
+        await updateVersionAndViews(tx, "mediatags", { newVersion, oldVersion });
+        await updateVersionAndViews(tx, "mediatags_junction", {
+          newVersion,
+          oldVersion,
+        });
+
+        return;
+      }
 
       // Handle different data structures
       let mediaTagsArray: MediaTagItem[] = [];
@@ -792,8 +831,18 @@ export async function transformMediaTags(): Promise<TransformResult> {
         }
       }
 
+      // If we couldn't extract any data, create empty views and return
       if (!mediaTagsArray.length) {
-        throw new Error("Could not extract mediaTags array from data");
+        console.log("Empty mediaTags array extracted, creating empty views");
+
+        // Update version metadata and create empty views
+        await updateVersionAndViews(tx, "mediatags", { newVersion, oldVersion });
+        await updateVersionAndViews(tx, "mediatags_junction", {
+          newVersion,
+          oldVersion,
+        });
+
+        return;
       }
 
       // Validate the structure before processing
@@ -805,8 +854,18 @@ export async function transformMediaTags(): Promise<TransformResult> {
           Array.isArray(item.tags),
       );
 
+      // If no valid data, create empty views and return
       if (validMediaTags.length === 0) {
-        throw new Error("No valid mediaTags records found in data");
+        console.log("No valid mediaTags records found, creating empty views");
+
+        // Update version metadata and create empty views
+        await updateVersionAndViews(tx, "mediatags", { newVersion, oldVersion });
+        await updateVersionAndViews(tx, "mediatags_junction", {
+          newVersion,
+          oldVersion,
+        });
+
+        return;
       }
 
       // Extract unique tags
@@ -821,8 +880,18 @@ export async function transformMediaTags(): Promise<TransformResult> {
         }
       });
 
+      // If no valid tags, create empty views and return
       if (uniqueTags.size === 0) {
-        throw new Error("No valid tags found in data");
+        console.log("No valid tags found in data, creating empty views");
+
+        // Update version metadata and create empty views
+        await updateVersionAndViews(tx, "mediatags", { newVersion, oldVersion });
+        await updateVersionAndViews(tx, "mediatags_junction", {
+          newVersion,
+          oldVersion,
+        });
+
+        return;
       }
 
       console.log("Data operation:", {
