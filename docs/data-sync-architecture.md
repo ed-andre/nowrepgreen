@@ -38,6 +38,72 @@ graph TD
 - Maintains compatibility with both local and cloud environments
 - Enables manual triggering from the source application (NowRepBlue)
 
+### Data Validation Process
+
+To ensure data integrity and prevent unintended consequences during synchronization, we've implemented a comprehensive validation process:
+
+#### 1. Source-Side Validation (NowRepBlue)
+
+Before initiating a sync operation, the system performs a critical check for external boards:
+
+```mermaid
+graph TD
+    A[User Initiates Sync] -->|Check First| B[External Boards Check]
+    B -->|Boards Exist| C[Proceed with Sync]
+    B -->|No Boards| D[Warning Dialog]
+    D -->|User Cancels| E[Abort Sync]
+    D -->|User Confirms| C
+```
+
+1. **External Board Check**:
+   - The system queries the database for boards with "EXTERNAL" visibility
+   - This check is performed via a dedicated API endpoint (`/api/internal/check-external-boards`)
+   - Requires user authentication for security
+
+2. **Warning Dialog**:
+   - If no external boards exist, a warning dialog appears explaining the consequences
+   - Informs users that proceeding will empty the portfolio site
+   - Provides clear options: "Cancel" or "Yes, Proceed"
+
+3. **User Decision Flow**:
+   - If the user cancels, the sync operation is aborted
+   - If the user confirms, the sync proceeds despite the absence of external boards
+   - If external boards exist, the sync proceeds automatically without warning
+
+#### 2. Target-Side Validation (NowRepGreen)
+
+The orchestration process includes a validation step to handle empty data scenarios gracefully:
+
+```mermaid
+graph TD
+    A[Orchestration Task] -->|First Step| B[Validate Boards Data]
+    B -->|Data Available| C[Proceed with Normal Sync]
+    B -->|No Data| D[Empty Data Handler]
+    D -->|Create Empty Tables| E[Update Views]
+    E -->|Return Success| F[Complete Orchestration]
+    C -->|Sync & Transform| F
+```
+
+1. **Boards Data Validation**:
+   - The orchestration task first checks if the boards API endpoint returns data
+   - This serves as an "anchor check" before proceeding with the full sync
+
+2. **Empty Data Handler**:
+   - If no data is available, a dedicated endpoint (`/api/internal/empty-data-handler`) is called
+   - This handler creates empty tables for all entities
+   - Updates views to point to these empty tables
+   - Ensures the application continues to function with empty data sets
+
+3. **Graceful Degradation**:
+   - Instead of failing, the system creates appropriate empty structures
+   - Maintains application functionality even with no data
+   - Provides detailed logging about the empty data scenario
+
+This dual validation approach (both at source and target) ensures that:
+1. Users are fully informed before emptying the portfolio site
+2. The system handles empty data scenarios gracefully
+3. The synchronization process is robust against data availability issues
+
 ### Implementation Guide
 
 #### 1. Server-Side API Endpoints
@@ -70,6 +136,12 @@ Three new API endpoints in the main application:
    - Supports filtering by task type, status, and limit
    - Secured with `SYNC_SECRET_KEY`
    - Enables monitoring of task progress
+
+5. **Empty Data Handler Endpoint** (`/api/internal/empty-data-handler`):
+   - Creates empty tables for all entities when no data is available
+   - Updates views to point to these empty tables
+   - Secured with `SYNC_SECRET_KEY`
+   - Returns detailed information about processed entities
 
 #### 2. Refactored Trigger.dev Tasks
 
@@ -104,20 +176,30 @@ The source application includes a user-friendly interface for manually triggerin
    - Last sync timestamp display
    - Manual sync trigger button
    - Visual feedback during sync operations
+   - Warning dialog for empty data scenarios
 
 2. **Server-Side Utilities**:
+
+   - `hasExternalBoards()`: Checks if any boards with "EXTERNAL" visibility exist
+     - Queries the database directly for efficiency
+     - Returns a boolean indicating whether external boards exist
+     - Used as a pre-sync validation check
 
    - `triggerAndMonitorSync`: Handles the complete sync workflow
      - Initiates sync via the orchestration endpoint
      - Polls for task status until completion
      - Records timestamps for each status check
      - Returns comprehensive results including success status and timing data
+
    - Supporting functions for triggering sync and checking task status
    - Retrieves historical task information including last successful run
 
 3. **Process Flow**:
    - User triggers sync manually via the header dropdown
-   - System initiates the sync process and provides visual feedback
+   - System checks for external boards before proceeding
+   - If no external boards exist, a warning dialog appears
+   - User decides whether to proceed or cancel
+   - If proceeding, system initiates the sync process and provides visual feedback
    - Application polls the target system to monitor progress
    - Upon completion, the UI updates with the new sync timestamp
    - Detailed error information is available in case of failures
@@ -129,6 +211,49 @@ The source application includes a user-friendly interface for manually triggerin
 - Validation of input data before processing
 - Detailed error logging without exposing sensitive information
 - Environment variable validation in trigger.dev tasks
+
+#### 5. Empty Data Handling
+
+The system includes a robust mechanism for handling empty data scenarios:
+
+1. **Source-Side Prevention**:
+   - Before initiating sync, NowRepBlue checks for external boards
+   - If none exist, users are warned that proceeding will empty the portfolio site
+   - This proactive approach prevents unintended data loss
+
+2. **Target-Side Graceful Degradation**:
+   - If the boards API returns no data, the orchestration process detects this
+   - Instead of failing, it calls the empty data handler endpoint
+   - The handler creates empty tables for all entities and updates views
+   - This ensures the application continues to function with empty data sets
+
+3. **Implementation Details**:
+   ```typescript
+   // In orchestrate-sync-api.ts
+   if (!validationResult.hasData) {
+     console.warn("No boards data available from source API:", validationResult.message);
+     console.log("Proceeding with empty data handling...");
+
+     // Handle empty data scenario by creating empty tables
+     const emptyDataResult = await handleEmptyDataScenario();
+
+     // Return success with empty data handling information
+     return {
+       success: true,
+       stage: "empty_data_handling",
+       message: "Successfully created empty tables due to no source data",
+       validationResult,
+       emptyDataResult,
+       completedAt: new Date().toISOString(),
+     };
+   }
+   ```
+
+4. **Benefits**:
+   - Prevents sync failures due to empty data
+   - Maintains application functionality even with no data
+   - Provides clear feedback about the empty data scenario
+   - Allows for easy recovery when data becomes available again
 
 ### Configuration Requirements
 

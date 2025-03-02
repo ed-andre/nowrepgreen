@@ -36,7 +36,7 @@ async function callServerTransform(entity: string): Promise<TransformResult> {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.SYNC_SECRET_KEY || "nrep_dev_iZh2ORNKZpbbWNjBDkU4"}`,
+          Authorization: `Bearer ${process.env.SYNC_SECRET_KEY}`,
         },
       },
     );

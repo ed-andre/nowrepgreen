@@ -90,7 +90,7 @@ describe("Orchestration API Unit Tests", () => {
         syncResult as any,
       );
       vi.mocked(transformAllDataApi.triggerAndWait().unwrap).mockResolvedValue(
-        transformResult,
+        transformResult as any,
       );
       orchestrateApi.run.mockResolvedValue(orchestrationResult);
 
@@ -166,7 +166,7 @@ describe("Orchestration API Unit Tests", () => {
         syncResult as any,
       );
       vi.mocked(transformAllDataApi.triggerAndWait().unwrap).mockResolvedValue(
-        transformResult,
+        transformResult as any,
       );
       orchestrateApi.run.mockResolvedValue(orchestrationResult);
 

@@ -60,9 +60,16 @@ The platform implements an API-driven data synchronization system designed for r
 ```mermaid
 graph TD
     A[NowRepBlue API] -->|Manual Trigger or Scheduled| B[NowRepBlue Sync Utility]
-    B -->|API Call| C[Orchestration API Endpoint]
+    B -->|Check First| V1[External Boards Check]
+    V1 -->|Boards Exist| C[Orchestration API Endpoint]
+    V1 -->|No Boards & User Confirms| C
     C -->|Trigger.dev Task| D[orchestrate-sync-api Task]
-    D -->|Orchestrates| E[sync-all-api Task]
+    D -->|First Step| V2[Validate Boards Data]
+    V2 -->|Data Available| E[sync-all-api Task]
+    V2 -->|No Data| V3[Empty Data Handler]
+    V3 -->|Create Empty Tables| V4[Update Views]
+    V4 -->|Return Success| Z[Complete Orchestration]
+    D -->|Orchestrates| E
     E -->|API Call| F[Store JSON API Endpoint]
     F -->|Store Raw JSON| G[JSON Stage Tables]
     G -->|Orchestrated by| D
@@ -75,29 +82,38 @@ graph TD
 
 ### Sync Process Flow
 
-1. **Orchestration**
+1. **Validation**
+
+   - Before initiating sync, NowRepBlue checks for the existence of external boards
+   - If no external boards exist, a warning dialog informs users that proceeding will empty the portfolio site
+   - Users can choose to cancel or proceed with the sync operation
+   - On the NowRepGreen side, the orchestration process validates if boards data is available
+   - If no data is available, the system creates empty tables and updates views accordingly
+
+2. **Orchestration**
 
    - NowRepBlue can trigger the sync process manually through a user-friendly interface
    - The orchestration task coordinates both sync and transform operations
    - API-driven approach ensures compatibility with Trigger.dev cloud environment
 
-2. **JSON Data Collection**
+3. **JSON Data Collection**
 
    - Sync task fetches data from NowRepBlue API endpoints
    - Data is stored via API calls to JSON stage tables (e.g., `BoardsJson`, `TalentsJson`)
    - Each sync maintains last 3 versions for rollback capability
 
-3. **Data Transformation**
+4. **Data Transformation**
 
    - Raw JSON data is transformed into normalized relational structure via API calls
    - Handles complex relationships (e.g., Boards-Talents, Talents-Portfolios)
    - Maintains data integrity through foreign key relationships
 
-4. **Version Management**
+5. **Version Management**
    - Each entity type maintains two versioned tables (v1, v2)
    - Active version alternates between v1 and v2
    - Current views automatically point to active version
    - Zero-downtime updates through atomic view switching
+   - Empty data scenarios are handled gracefully with empty tables and updated views
 
 ### Entity Relationships
 
@@ -205,6 +221,12 @@ The data synchronization is managed through several API endpoints:
    - Retrieves status of specific tasks or lists multiple tasks
    - Supports filtering by task type, status, and limit
 
+5. **Empty Data Handler Endpoint** (`/api/internal/empty-data-handler`)
+   - Creates empty tables for all entities when no data is available
+   - Updates views to point to these empty tables
+   - Ensures the application continues to function with empty data sets
+   - Returns detailed information about processed entities
+
 ### Trigger.dev Tasks
 
 The synchronization process is managed by three main tasks:
@@ -217,6 +239,9 @@ The synchronization process is managed by three main tasks:
      id: "orchestrate-sync-api",
    });
    ```
+   - Includes data validation before proceeding with sync
+   - Handles empty data scenarios by creating empty tables
+   - Provides comprehensive error handling and reporting
 
 2. **API-Driven Sync Task** (`sync-all-api`)
 
@@ -234,6 +259,29 @@ The synchronization process is managed by three main tasks:
      id: "transform-all-data-api",
    });
    ```
+
+### Data Validation Utilities
+
+The system includes dedicated utilities for data validation:
+
+```typescript
+// Validates if the boards API endpoint returns data
+export async function validateBoardsData(): Promise<{
+  hasData: boolean;
+  message: string;
+}> {
+  // Implementation details...
+}
+
+// Handles empty data scenarios
+export async function handleEmptyDataScenario(): Promise<{
+  success: boolean;
+  message: string;
+  entities: string[];
+}> {
+  // Implementation details...
+}
+```
 
 ### Task Monitoring
 

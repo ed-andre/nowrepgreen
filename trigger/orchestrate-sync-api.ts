@@ -1,5 +1,6 @@
 import { task, SubtaskUnwrapError } from "@trigger.dev/sdk/v3";
 
+import { validateBoardsData, handleEmptyDataScenario } from "./data-validation";
 import { syncAllJsonApi } from "./sync-all-api";
 import { transformAllDataApi } from "./transform-all-api";
 
@@ -13,6 +14,45 @@ export const orchestrateSyncApi = task({
     console.log("Starting API-driven orchestration process...");
 
     try {
+      // Step 0: Validate if boards data is available
+      console.log("Step 0: Validating data availability...");
+      const validationResult = await validateBoardsData();
+
+      if (!validationResult.hasData) {
+        console.warn("No boards data available from source API:", validationResult.message);
+        console.log("Proceeding with empty data handling...");
+
+        // Handle empty data scenario by creating empty tables
+        const emptyDataResult = await handleEmptyDataScenario();
+
+        if (!emptyDataResult.success) {
+          console.error("Failed to handle empty data scenario:", emptyDataResult.message);
+          return {
+            success: false,
+            stage: "validation",
+            error: emptyDataResult.message,
+            completedAt: new Date().toISOString(),
+          };
+        }
+
+        console.log("Successfully handled empty data scenario:", {
+          message: emptyDataResult.message,
+          processedEntities: emptyDataResult.entities,
+        });
+
+        // Return success with empty data handling information
+        return {
+          success: true,
+          stage: "empty_data_handling",
+          message: "Successfully created empty tables due to no source data",
+          validationResult,
+          emptyDataResult,
+          completedAt: new Date().toISOString(),
+        };
+      }
+
+      console.log("Data validation successful:", validationResult.message);
+
       // Step 1: Sync all JSON data from external API
       console.log("Step 1: Syncing JSON data...");
       const syncResult = await syncAllJsonApi.triggerAndWait().unwrap();
