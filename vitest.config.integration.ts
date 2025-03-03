@@ -23,7 +23,6 @@ export default defineConfig({
       DATABASE_URL: env.DATABASE_URL,
       SOURCE_API_URL: env.SOURCE_API_URL || "http://localhost:3000",
       TARGET_API_URL: env.TARGET_API_URL,
-      TRIGGER_DEV_API_URL: env.TRIGGER_DEV_API_URL,
       TRIGGER_API_KEY: env.TRIGGER_API_KEY,
       TRIGGER_SECRET_KEY: env.TRIGGER_SECRET_KEY,
     },

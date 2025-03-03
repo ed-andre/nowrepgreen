@@ -19,14 +19,20 @@ export const orchestrateSyncApi = task({
       const validationResult = await validateBoardsData();
 
       if (!validationResult.hasData) {
-        console.warn("No boards data available from source API:", validationResult.message);
+        console.warn(
+          "No boards data available from source API:",
+          validationResult.message,
+        );
         console.log("Proceeding with empty data handling...");
 
         // Handle empty data scenario by creating empty tables
         const emptyDataResult = await handleEmptyDataScenario();
 
         if (!emptyDataResult.success) {
-          console.error("Failed to handle empty data scenario:", emptyDataResult.message);
+          console.error(
+            "Failed to handle empty data scenario:",
+            emptyDataResult.message,
+          );
           return {
             success: false,
             stage: "validation",

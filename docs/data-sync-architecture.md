@@ -56,11 +56,13 @@ graph TD
 ```
 
 1. **External Board Check**:
+
    - The system queries the database for boards with "EXTERNAL" visibility
    - This check is performed via a dedicated API endpoint (`/api/internal/check-external-boards`)
    - Requires user authentication for security
 
 2. **Warning Dialog**:
+
    - If no external boards exist, a warning dialog appears explaining the consequences
    - Informs users that proceeding will empty the portfolio site
    - Provides clear options: "Cancel" or "Yes, Proceed"
@@ -85,10 +87,12 @@ graph TD
 ```
 
 1. **Boards Data Validation**:
+
    - The orchestration task first checks if the boards API endpoint returns data
    - This serves as an "anchor check" before proceeding with the full sync
 
 2. **Empty Data Handler**:
+
    - If no data is available, a dedicated endpoint (`/api/internal/empty-data-handler`) is called
    - This handler creates empty tables for all entities
    - Updates views to point to these empty tables
@@ -100,6 +104,7 @@ graph TD
    - Provides detailed logging about the empty data scenario
 
 This dual validation approach (both at source and target) ensures that:
+
 1. Users are fully informed before emptying the portfolio site
 2. The system handles empty data scenarios gracefully
 3. The synchronization process is robust against data availability issues
@@ -132,6 +137,7 @@ Three new API endpoints in the main application:
    - Supports both `Authorization: Bearer` and `x-sync-secret` headers
 
 4. **Task Status Endpoint** (`/api/internal/task-status/:taskId`):
+
    - Retrieves status of a specific task or lists multiple tasks
    - Supports filtering by task type, status, and limit
    - Secured with `SYNC_SECRET_KEY`
@@ -181,11 +187,13 @@ The source application includes a user-friendly interface for manually triggerin
 2. **Server-Side Utilities**:
 
    - `hasExternalBoards()`: Checks if any boards with "EXTERNAL" visibility exist
+
      - Queries the database directly for efficiency
      - Returns a boolean indicating whether external boards exist
      - Used as a pre-sync validation check
 
    - `triggerAndMonitorSync`: Handles the complete sync workflow
+
      - Initiates sync via the orchestration endpoint
      - Polls for task status until completion
      - Records timestamps for each status check
@@ -217,21 +225,27 @@ The source application includes a user-friendly interface for manually triggerin
 The system includes a robust mechanism for handling empty data scenarios:
 
 1. **Source-Side Prevention**:
+
    - Before initiating sync, NowRepBlue checks for external boards
    - If none exist, users are warned that proceeding will empty the portfolio site
    - This proactive approach prevents unintended data loss
 
 2. **Target-Side Graceful Degradation**:
+
    - If the boards API returns no data, the orchestration process detects this
    - Instead of failing, it calls the empty data handler endpoint
    - The handler creates empty tables for all entities and updates views
    - This ensures the application continues to function with empty data sets
 
 3. **Implementation Details**:
+
    ```typescript
    // In orchestrate-sync-api.ts
    if (!validationResult.hasData) {
-     console.warn("No boards data available from source API:", validationResult.message);
+     console.warn(
+       "No boards data available from source API:",
+       validationResult.message,
+     );
      console.log("Proceeding with empty data handling...");
 
      // Handle empty data scenario by creating empty tables

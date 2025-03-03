@@ -218,6 +218,7 @@ The data synchronization is managed through several API endpoints:
    - Updates versioned tables and views
 
 4. **Task Status Endpoint** (`/api/internal/task-status/:taskId`)
+
    - Retrieves status of specific tasks or lists multiple tasks
    - Supports filtering by task type, status, and limit
 
@@ -239,6 +240,7 @@ The synchronization process is managed by three main tasks:
      id: "orchestrate-sync-api",
    });
    ```
+
    - Includes data validation before proceeding with sync
    - Handles empty data scenarios by creating empty tables
    - Provides comprehensive error handling and reporting

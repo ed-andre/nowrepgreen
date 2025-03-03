@@ -117,7 +117,9 @@ export const transformAllDataApi = task({
           errors.push(errorMsg);
           console.error(errorMsg);
           // Continue processing other entities instead of breaking
-          console.log(`Continuing with next entity despite failure in ${entity}`);
+          console.log(
+            `Continuing with next entity despite failure in ${entity}`,
+          );
         } else {
           console.log(`Successfully transformed ${entity}`);
         }
@@ -130,7 +132,9 @@ export const transformAllDataApi = task({
           success: false,
           transformedEntities: results,
           error: errors.join("; "),
-          failedEntities: results.filter((r) => !r.success).map((r) => r.entity),
+          failedEntities: results
+            .filter((r) => !r.success)
+            .map((r) => r.entity),
         };
       }
 

@@ -10,12 +10,14 @@ export async function validateBoardsData(): Promise<{
 }> {
   try {
     console.log("Validating boards data availability...");
-    const response = await fetch(API_CONFIG.getFullUrl(API_CONFIG.endpoints.boards));
+    const response = await fetch(
+      API_CONFIG.getFullUrl(API_CONFIG.endpoints.boards),
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(
-        `HTTP error! status: ${response.status}, response: ${errorText}`
+        `HTTP error! status: ${response.status}, response: ${errorText}`,
       );
     }
 
@@ -28,19 +30,21 @@ export async function validateBoardsData(): Promise<{
         ? (data as any).data.length > 0
         : false;
 
-    console.log(`Boards data validation result: ${hasData ? "Data available" : "No data available"}`);
+    console.log(
+      `Boards data validation result: ${hasData ? "Data available" : "No data available"}`,
+    );
 
     return {
       hasData,
       message: hasData
         ? `Found ${Array.isArray(data) ? data.length : (data as any)?.data?.length || 0} boards`
-        : "No boards data available from source API"
+        : "No boards data available from source API",
     };
   } catch (error) {
     console.error("Error validating boards data:", error);
     return {
       hasData: false,
-      message: `Error validating boards data: ${error instanceof Error ? error.message : String(error)}`
+      message: `Error validating boards data: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }
@@ -66,12 +70,12 @@ export async function handleEmptyDataScenario(): Promise<{
 
     if (!targetApiUrl) {
       throw new Error(
-        "TARGET_API_URL environment variable is not set and no fallback is available"
+        "TARGET_API_URL environment variable is not set and no fallback is available",
       );
     }
 
     // Get the sync secret key from environment variables
-    const syncSecretKey = process.env.SYNC_SECRET_KEY ;
+    const syncSecretKey = process.env.SYNC_SECRET_KEY;
 
     console.log(`Using target API URL: ${targetApiUrl}`);
 
@@ -84,12 +88,14 @@ export async function handleEmptyDataScenario(): Promise<{
           "Content-Type": "application/json",
           Authorization: `Bearer ${syncSecretKey}`,
         },
-      }
+      },
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Empty data handler API error (${response.status}): ${errorText}`);
+      throw new Error(
+        `Empty data handler API error (${response.status}): ${errorText}`,
+      );
     }
 
     const result = await response.json();
@@ -97,7 +103,7 @@ export async function handleEmptyDataScenario(): Promise<{
 
     if (!result.success) {
       throw new Error(
-        `Empty data handler API returned failure: ${result.message || "Unknown error"}`
+        `Empty data handler API returned failure: ${result.message || "Unknown error"}`,
       );
     }
 

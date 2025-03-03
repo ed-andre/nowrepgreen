@@ -270,7 +270,9 @@ export async function transformBoardsTalents(): Promise<TransformResult> {
       type: latestJson ? typeof latestJson.data : "N/A",
       isArray: latestJson ? Array.isArray(latestJson.data) : false,
       keys:
-        latestJson && typeof latestJson.data === "object" && latestJson.data !== null
+        latestJson &&
+        typeof latestJson.data === "object" &&
+        latestJson.data !== null
           ? Object.keys(latestJson.data as object)
           : "N/A",
     });
@@ -358,7 +360,9 @@ export async function transformBoardsTalents(): Promise<TransformResult> {
 
       // If no valid data, create an empty view instead of throwing an error
       if (validBoardTalents.length === 0) {
-        console.log("No valid boardsTalents records found, creating empty view");
+        console.log(
+          "No valid boardsTalents records found, creating empty view",
+        );
 
         // Update version metadata and create empty view
         await updateVersionAndViews(tx, "boardstalents", {
@@ -765,7 +769,9 @@ export async function transformMediaTags(): Promise<TransformResult> {
       type: latestJson ? typeof latestJson.data : "N/A",
       isArray: latestJson ? Array.isArray(latestJson.data) : false,
       keys:
-        latestJson && typeof latestJson.data === "object" && latestJson.data !== null
+        latestJson &&
+        typeof latestJson.data === "object" &&
+        latestJson.data !== null
           ? Object.keys(latestJson.data as object)
           : "N/A",
     });
@@ -791,7 +797,10 @@ export async function transformMediaTags(): Promise<TransformResult> {
         console.log("No data found for mediatags, creating empty views");
 
         // Update version metadata and create empty views
-        await updateVersionAndViews(tx, "mediatags", { newVersion, oldVersion });
+        await updateVersionAndViews(tx, "mediatags", {
+          newVersion,
+          oldVersion,
+        });
         await updateVersionAndViews(tx, "mediatags_junction", {
           newVersion,
           oldVersion,
@@ -836,7 +845,10 @@ export async function transformMediaTags(): Promise<TransformResult> {
         console.log("Empty mediaTags array extracted, creating empty views");
 
         // Update version metadata and create empty views
-        await updateVersionAndViews(tx, "mediatags", { newVersion, oldVersion });
+        await updateVersionAndViews(tx, "mediatags", {
+          newVersion,
+          oldVersion,
+        });
         await updateVersionAndViews(tx, "mediatags_junction", {
           newVersion,
           oldVersion,
@@ -859,7 +871,10 @@ export async function transformMediaTags(): Promise<TransformResult> {
         console.log("No valid mediaTags records found, creating empty views");
 
         // Update version metadata and create empty views
-        await updateVersionAndViews(tx, "mediatags", { newVersion, oldVersion });
+        await updateVersionAndViews(tx, "mediatags", {
+          newVersion,
+          oldVersion,
+        });
         await updateVersionAndViews(tx, "mediatags_junction", {
           newVersion,
           oldVersion,
@@ -885,7 +900,10 @@ export async function transformMediaTags(): Promise<TransformResult> {
         console.log("No valid tags found in data, creating empty views");
 
         // Update version metadata and create empty views
-        await updateVersionAndViews(tx, "mediatags", { newVersion, oldVersion });
+        await updateVersionAndViews(tx, "mediatags", {
+          newVersion,
+          oldVersion,
+        });
         await updateVersionAndViews(tx, "mediatags_junction", {
           newVersion,
           oldVersion,
