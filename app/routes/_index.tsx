@@ -8,6 +8,7 @@ import {
   SystemDiagram,
   ReactFlowDiagram,
   CodeExample,
+  DataPipelineDiagram,
 } from "~/components/docs";
 
 export function meta() {
@@ -103,7 +104,7 @@ export default function Home() {
         >
           <h3 className="text-xl font-bold mb-2">NowRepYellow</h3>
           <p className="text-white/90">
-            Reporting layer for analytics and insights
+            Reporting layer for analytics and insights with Metabase and Evidence.dev
           </p>
         </Link>
       </div>
@@ -972,30 +973,391 @@ export default function Home() {
       <DocSection
         id="nowrepyellow"
         title="NowRepYellow"
-        description="The reporting layer for analytics and insights."
-        className="opacity-70"
+        description="The reporting layer for analytics and insights with Metabase and Evidence.dev."
       >
-        <div className="flex items-center justify-center p-12 bg-gray-100 rounded-lg border border-gray-200">
-          <div className="text-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-16 w-16 mx-auto text-yellow-300 mb-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="16"></line>
-              <line x1="8" y1="12" x2="16" y2="12"></line>
-            </svg>
-            <h3 className="text-xl font-semibold mb-2">Coming Soon</h3>
-            <p className="text-gray-600 max-w-md mx-auto">
-              The reporting layer documentation is currently under development.
-              Check back soon for detailed information about NowRepYellow.
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">
+              Overview
+            </h3>
+            <p className="text-gray-600 mb-4">
+              NowRepYellow is the reporting pillar of the NowRep suite that transforms raw data from NowRepBlue into actionable insights. It will implement a modern data stack with robust ELT processes and advanced analytics capabilities.
             </p>
+            <p className="text-gray-600">
+              The platform will provide both embedded analytics through Evidence.dev and advanced reporting via Metabase, enabling data-driven decision making across the NowRep suite.
+            </p>
+          </div>
+          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">
+              Tech Stack
+            </h3>
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                <span>Apache Airflow for data orchestration</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                <span>dbt for data transformation</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                <span>BigQuery as data warehouse</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                <span>Evidence.dev for embedded analytics</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                <span>Metabase for advanced reporting</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mb-10">
+          <h3 className="text-xl font-semibold mb-6 text-gray-800">
+            Data Pipeline Architecture (Subject to change)
+          </h3>
+          <p className="text-gray-600 mb-6">
+            The data pipeline will follow a modern ELT architecture, with data flowing from NowRepBlue to various analytics endpoints through a series of transformations and quality checks.
+          </p>
+
+          {/* React Flow Diagram (modern, interactive) */}
+          <div className="hidden md:block">
+            <DataPipelineDiagram
+              title="Data Flow"
+              description="The data pipeline flows from NowRepBlue to analytics endpoints through a series of transformations and quality checks. This system design is subject to change throughout the development process."
+              className="mb-10"
+            />
+          </div>
+
+          {/* Fallback for mobile or if React Flow fails to load */}
+          <div className="md:hidden">
+            <SystemDiagram
+              title="Data Flow"
+              description="The data pipeline flows from NowRepBlue to analytics endpoints through a series of transformations and quality checks. This system design is subject to change throughout the development process."
+              nodes={[
+                {
+                  id: "nowrep-blue-postgres",
+                  title: "NowRepBlue PostgreSQL",
+                  description: "Source database with agency data",
+                  position: "left",
+                  type: "source",
+                  connections: ["airflow-dags"],
+                  icon: (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                      <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                      <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                    </svg>
+                  ),
+                },
+                {
+                  id: "airflow-dags",
+                  title: "Airflow DAGs",
+                  description: "Data orchestration and scheduling",
+                  position: "center",
+                  type: "process",
+                  connections: ["raw-data-load"],
+                  icon: (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 2v20M2 12h20"></path>
+                      <path d="M12 2a10 10 0 0 1 10 10"></path>
+                    </svg>
+                  ),
+                },
+                {
+                  id: "raw-data-load",
+                  title: "Raw Data Load",
+                  description: "Initial data ingestion to BigQuery",
+                  position: "center",
+                  type: "process",
+                  connections: ["dbt-transforms"],
+                  icon: (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                  ),
+                },
+                {
+                  id: "dbt-transforms",
+                  title: "dbt Transforms",
+                  description: "Data transformation and modeling",
+                  position: "center",
+                  type: "process",
+                  connections: ["bigquery-warehouse"],
+                  icon: (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 3v12"></path>
+                      <path d="m8 11 4 4 4-4"></path>
+                      <path d="M8 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4"></path>
+                    </svg>
+                  ),
+                },
+                {
+                  id: "bigquery-warehouse",
+                  title: "BigQuery Warehouse",
+                  description: "Transformed data for analytics",
+                  position: "right",
+                  type: "target",
+                  connections: ["evidence-dev", "metabase"],
+                  icon: (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M3 3v18h18"></path>
+                      <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
+                    </svg>
+                  ),
+                },
+                {
+                  id: "evidence-dev",
+                  title: "Evidence.dev",
+                  description: "Embedded analytics reports",
+                  position: "right",
+                  type: "target",
+                  icon: (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                    </svg>
+                  ),
+                },
+                {
+                  id: "metabase",
+                  title: "Metabase",
+                  description: "Advanced analytics dashboard",
+                  position: "right",
+                  type: "target",
+                  icon: (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="3" y1="9" x2="21" y2="9"></line>
+                      <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                  ),
+                },
+              ]}
+              className="mb-10"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">
+              Key Features
+            </h3>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mt-0.5">
+                  ✓
+                </span>
+                <span>
+                  <strong className="text-gray-800">Automated ETL</strong>{" "}
+                  with Airflow for reliable data pipelines
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mt-0.5">
+                  ✓
+                </span>
+                <span>
+                  <strong className="text-gray-800">Data Quality</strong>{" "}
+                  through dbt tests and documentation
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mt-0.5">
+                  ✓
+                </span>
+                <span>
+                  <strong className="text-gray-800">Scalable Analytics</strong>{" "}
+                  with BigQuery for high-performance queries
+                </span>
+              </li>
+            </ul>
+          </div>
+          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">
+              Development Status
+            </h3>
+            <p className="text-gray-600 mb-4">
+              NowRepYellow is in early development phase with core infrastructure in place:
+            </p>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mt-0.5">
+                  ✓
+                </span>
+                <span>
+                  <strong className="text-gray-800">Infrastructure</strong>{" "}
+                  setup with Docker and CI/CD
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mt-0.5">
+                  ✓
+                </span>
+                <span>
+                  <strong className="text-gray-800">Data Pipeline</strong>{" "}
+                  architecture and initial models
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mt-0.5">
+                  ⚡
+                </span>
+                <span>
+                  <strong className="text-gray-800">Analytics</strong>{" "}
+                  implementation in progress
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </DocSection>
+
+      {/* Future Considerations Section */}
+      <DocSection
+        id="future"
+        title="Future Considerations"
+        description="Planned enhancements and features for the NowRep suite."
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">
+              Enterprise Features
+            </h3>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mt-0.5">
+                  ⚡
+                </span>
+                <span>
+                  <strong className="text-gray-800">Multi-tenancy</strong>{" "}
+                  support with isolated data and custom branding per agency
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mt-0.5">
+                  ⚡
+                </span>
+                <span>
+                  <strong className="text-gray-800">SSO and MFA Integration</strong>{" "}
+                  with support for major identity providers
+                </span>
+              </li>
+
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">
+              Platform Enhancements
+            </h3>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mt-0.5">
+                  ⚡
+                </span>
+                <span>
+                  <strong className="text-gray-800">Event Bus</strong>{" "}
+                  for real-time updates across NowRepBlue
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mt-0.5">
+                  ⚡
+                </span>
+                <span>
+                  <strong className="text-gray-800">Accounting Integration</strong>{" "}
+                  with Quickbooks/Xero for invoicing and billing
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mt-0.5">
+                  ⚡
+                </span>
+                <span>
+                  <strong className="text-gray-800">Social Media Integration</strong>{" "}
+                  with Instagram for talent and organization updates
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mt-0.5">
+                  ⚡
+                </span>
+                <span>
+                  <strong className="text-gray-800">Monitoring</strong>{" "}
+                  and observability with centralized logging
+                </span>
+              </li>
+            </ul>
           </div>
         </div>
       </DocSection>
