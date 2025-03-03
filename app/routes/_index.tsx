@@ -1,4 +1,4 @@
-import { ChevronRight, MoveRight } from "lucide-react";
+import { ChevronRight, MoveRight, RefreshCw } from "lucide-react";
 import { Link } from "react-router";
 
 import {
@@ -8,7 +8,6 @@ import {
   SystemDiagram,
   ReactFlowDiagram,
   CodeExample,
-  GitHubInfoDialog,
 } from "~/components/docs";
 
 export function meta() {
@@ -57,15 +56,38 @@ export default function Home() {
 
       {/* Quick Navigation */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-        <Link
-          to="#nowrepgreen"
-          className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-        >
-          <h3 className="text-xl font-bold mb-2">NowRepGreen</h3>
-          <p className="text-white/90">
-            Portfolio platform for showcasing talent and media
-          </p>
-        </Link>
+        <div className="relative">
+          <Link
+            to="#nowrepgreen"
+            className="block bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+          >
+            <h3 className="text-xl font-bold mb-2">NowRepGreen</h3>
+            <p className="text-white/90">
+              Portfolio platform for showcasing talent and media
+            </p>
+          </Link>
+          <a
+            href="https://github.com/Edmaximus/nowrepgreen"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute top-2 right-2 p-2 text-white/90 hover:text-white transition-colors"
+            aria-label="View NowRepGreen on GitHub"
+          >
+            {/* GitHub logo */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+            </svg>
+          </a>
+        </div>
         <Link
           to="#nowrepblue"
           className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
@@ -553,7 +575,29 @@ export default function Home() {
             including the orchestration tasks and data synchronization
             implementation.
           </p>
-          <GitHubInfoDialog />
+          <a
+            href="https://github.com/Edmaximus/nowrepgreen"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-md transition-colors"
+          >
+            {/* GitHub logo */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+            </svg>
+
+            <span>View on GitHub</span>
+            <MoveRight className="h-5 w-5" />
+          </a>
         </div>
 
         <div className="relative mb-10 rounded-lg overflow-hidden shadow-lg">
@@ -781,16 +825,69 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mb-6">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">
+        <div className="mb-10">
+          <h3 className="text-xl font-semibold mb-6 text-gray-800">
             Try the Admin System
           </h3>
-          <p className="text-gray-600 mb-4">
-            Experience the NowRepBlue admin system firsthand. Use the
-            credential: <strong>demo@nowrep.com | rachel1scHo0l</strong> to
-            access it. Note that the repository for this project is private and
-            but access can be granted upon request.
-          </p>
+          <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl shadow-xl overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+              <div className="text-gray-800">
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 mb-6">
+                  <p className="mb-2">Access Credentials:</p>
+                  <code className="block bg-black/10 rounded px-3 py-2 font-mono text-sm mb-3">
+                    demo@nowrep.com | rachel1scHo0l
+                  </code>
+                  <a
+                    href="https://nowrepblue-e197-staging.fly.dev"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm"
+                  >
+                    <span>Access Admin System</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </a>
+                </div>
+                <div className="space-y-6">
+                  <div>
+                    <p className="font-medium mb-3">To sync updated data:</p>
+                    <ol className="list-decimal list-inside space-y-2 text-gray-700">
+                      <li>
+                        Go to Boards and make changes to the talent assignments
+                      </li>
+                      <li>Click the refresh icon in the top right corner</li>
+                      <li>Select "Sync Now" from the dropdown</li>
+                    </ol>
+                  </div>
+                  <div>
+                    <p className="font-medium mb-3">Data points synced:</p>
+                    <ul className="grid grid-cols-2 gap-2 text-sm">
+                      <li className="bg-white/60 rounded-lg px-3 py-2">
+                        Boards & Assignments
+                      </li>
+                      <li className="bg-white/60 rounded-lg px-3 py-2">
+                        Talent Profiles
+                      </li>
+                      <li className="bg-white/60 rounded-lg px-3 py-2">
+                        Portfolios & Media
+                      </li>
+                      <li className="bg-white/60 rounded-lg px-3 py-2">
+                        Media Tags
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-center">
+                <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3 shadow-lg w-full max-w-[300px] transform transition-transform hover:scale-105">
+                  <img
+                    src="/images/syncdropdown.png"
+                    alt="Sync dropdown interface"
+                    className="w-full rounded border border-white/10"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="relative mb-10 rounded-lg overflow-hidden shadow-lg">
@@ -913,27 +1010,25 @@ export default function Home() {
             <p className="text-gray-600">Modern agency management platform</p>
           </div>
           <div className="flex gap-6">
-            <Link
-              to="/modeling"
-              className="text-gray-600 hover:text-emerald-600 transition-colors"
-            >
-              Sample Portfolio
-            </Link>
             <a
-              href="https://github.com"
+              href="https://github.com/Edmaximus"
               className="text-gray-600 hover:text-emerald-600 transition-colors"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Visit GitHub Profile"
             >
-              GitHub
-            </a>
-            <a
-              href="https://trigger.dev"
-              className="text-gray-600 hover:text-emerald-600 transition-colors"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Trigger.dev
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+              </svg>
             </a>
           </div>
         </div>

@@ -1,5 +1,7 @@
 # NowRepGreen - Agency Portfolio Platform
 
+> **Note**: This repository is public for demonstration purposes only. We are not accepting contributions or pull requests at this time. The codebase is available for viewing and learning purposes.
+
 A modern web application for agencies to showcase their talents and portfolios to potential clients.
 
 ## Overview
@@ -321,3 +323,18 @@ For administrative features and talent management, please refer to [NowRepBlue](
 │   ├── types/         # TypeScript type definitions
 │   └── tests/         # Test suites
 ```
+
+## License and Usage
+
+© 2024 NowRep Suite. All Rights Reserved.
+
+This codebase is made public for demonstration and educational purposes only. All rights are reserved and no permissions are granted for:
+
+- Commercial use
+- Modification
+- Distribution
+- Private use
+
+The source code, design patterns, and architecture demonstrated in this repository are proprietary and may not be used, copied, or replicated without explicit written permission.
+
+For inquiries about the codebase or potential collaboration, please reach out to the repository owner.
