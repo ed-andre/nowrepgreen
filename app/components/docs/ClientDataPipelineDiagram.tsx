@@ -112,11 +112,11 @@ export default function ClientDataPipelineDiagram({
         sourcePosition: Position.Right,
       },
       {
-        id: "airflow-dags",
+        id: "dagster-pipelines",
         type: "process",
         data: {
-          label: "Airflow DAGs",
-          description: "Data orchestration and scheduling",
+          label: "Dagster Pipelines",
+          description: "Data orchestration and ingestion",
           icon: (
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -218,32 +218,6 @@ export default function ClientDataPipelineDiagram({
         targetPosition: Position.Left,
       },
       {
-        id: "evidence-dev",
-        type: "target",
-        data: {
-          label: "Evidence.dev",
-          description: "Embedded analytics reports",
-          icon: (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-            </svg>
-          ),
-        },
-        position: { x: 1250, y: 50 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-      },
-      {
         id: "metabase",
         type: "target",
         data: {
@@ -266,7 +240,7 @@ export default function ClientDataPipelineDiagram({
             </svg>
           ),
         },
-        position: { x: 1250, y: 250 },
+        position: { x: 1250, y: 150 },
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
       },
@@ -278,9 +252,9 @@ export default function ClientDataPipelineDiagram({
   const initialEdges = useMemo<Edge[]>(
     () => [
       {
-        id: "postgres-to-airflow",
+        id: "postgres-to-dagster",
         source: "nowrep-blue-postgres",
-        target: "airflow-dags",
+        target: "dagster-pipelines",
         sourceHandle: "right",
         targetHandle: "left",
         animated: true,
@@ -290,8 +264,8 @@ export default function ClientDataPipelineDiagram({
         style: { stroke: "#94a3b8" },
       },
       {
-        id: "airflow-to-raw-load",
-        source: "airflow-dags",
+        id: "dagster-to-raw-load",
+        source: "dagster-pipelines",
         target: "raw-data-load",
         sourceHandle: "right",
         targetHandle: "left",
@@ -320,19 +294,6 @@ export default function ClientDataPipelineDiagram({
         sourceHandle: "right",
         targetHandle: "left",
         animated: true,
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-        },
-        style: { stroke: "#94a3b8" },
-      },
-      {
-        id: "bigquery-to-evidence",
-        source: "bigquery-warehouse",
-        target: "evidence-dev",
-        sourceHandle: "right",
-        targetHandle: "left",
-        animated: true,
-        type: "smoothstep",
         markerEnd: {
           type: MarkerType.ArrowClosed,
         },
