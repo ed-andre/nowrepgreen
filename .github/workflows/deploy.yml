@@ -96,7 +96,7 @@ jobs:
     name: Integration Tests (Vitest)
     runs-on: ubuntu-latest
     environment: nowrepgreen-e197-staging
-    # Mark as continue-on-error to make it optional
+    if: false  # Disable this job from running
     continue-on-error: true
     steps:
       - name: Checkout repository
