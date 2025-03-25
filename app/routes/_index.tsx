@@ -68,7 +68,7 @@ export default function Home() {
             </p>
           </Link>
           <a
-            href="https://github.com/Edmaximus/nowrepgreen"
+            href="https://github.com/ed-andre/nowrepgreen"
             target="_blank"
             rel="noopener noreferrer"
             className="absolute top-2 right-2 p-2 text-white/90 hover:text-white transition-colors"
@@ -104,7 +104,7 @@ export default function Home() {
         >
           <h3 className="text-xl font-bold mb-2">NowRepYellow</h3>
           <p className="text-white/90">
-            Reporting layer for analytics and insights with Metabase and Evidence.dev
+            Reporting layer for analytics and insights with Metabase
           </p>
         </Link>
       </div>
@@ -577,7 +577,7 @@ export default function Home() {
             implementation.
           </p>
           <a
-            href="https://github.com/Edmaximus/nowrepgreen"
+            href="https://github.com/ed-andre/nowrepgreen"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-md transition-colors"
@@ -973,7 +973,7 @@ export default function Home() {
       <DocSection
         id="nowrepyellow"
         title="NowRepYellow"
-        description="The reporting layer for analytics and insights with Metabase and Evidence.dev."
+        description="The reporting layer for analytics and insights with Metabase."
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
           <div>
@@ -984,7 +984,7 @@ export default function Home() {
               NowRepYellow is the reporting pillar of the NowRep suite that transforms raw data from NowRepBlue into actionable insights. It will implement a modern data stack with robust ELT processes and advanced analytics capabilities.
             </p>
             <p className="text-gray-600">
-              The platform will provide both embedded analytics through Evidence.dev and advanced reporting via Metabase, enabling data-driven decision making across the NowRep suite.
+              The platform will provide both embedded analytics through Metabase and advanced reporting capabilities.
             </p>
           </div>
           <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
@@ -992,10 +992,6 @@ export default function Home() {
               Tech Stack
             </h3>
             <ul className="space-y-2">
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                <span>Apache Airflow for data orchestration</span>
-              </li>
               <li className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
                 <span>dbt for data transformation</span>
@@ -1006,7 +1002,7 @@ export default function Home() {
               </li>
               <li className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                <span>Evidence.dev for embedded analytics</span>
+                <span>Dagster for data orchestration</span>
               </li>
               <li className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
@@ -1045,7 +1041,7 @@ export default function Home() {
                   description: "Source database with agency data",
                   position: "left",
                   type: "source",
-                  connections: ["airflow-dags"],
+                  connections: ["dagster-pipelines"],
                   icon: (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -1064,9 +1060,9 @@ export default function Home() {
                   ),
                 },
                 {
-                  id: "airflow-dags",
-                  title: "Airflow DAGs",
-                  description: "Data orchestration and scheduling",
+                  id: "dagster-pipelines",
+                  title: "Dagster Pipelines",
+                  description: "Data orchestration and ingestion",
                   position: "center",
                   type: "process",
                   connections: ["raw-data-load"],
@@ -1140,7 +1136,7 @@ export default function Home() {
                   description: "Transformed data for analytics",
                   position: "right",
                   type: "target",
-                  connections: ["evidence-dev", "metabase"],
+                  connections: ["metabase"],
                   icon: (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -1154,28 +1150,6 @@ export default function Home() {
                     >
                       <path d="M3 3v18h18"></path>
                       <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
-                    </svg>
-                  ),
-                },
-                {
-                  id: "evidence-dev",
-                  title: "Evidence.dev",
-                  description: "Embedded analytics reports",
-                  position: "right",
-                  type: "target",
-                  icon: (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                     </svg>
                   ),
                 },
@@ -1220,7 +1194,7 @@ export default function Home() {
                 </span>
                 <span>
                   <strong className="text-gray-800">Automated ETL</strong>{" "}
-                  with Airflow for reliable data pipelines
+                  with Dagster for reliable data pipelines
                 </span>
               </li>
               <li className="flex items-start gap-3">
@@ -1373,7 +1347,7 @@ export default function Home() {
           </div>
           <div className="flex gap-6">
             <a
-              href="https://github.com/Edmaximus"
+              href="https://github.com/ed-andre"
               className="text-gray-600 hover:text-emerald-600 transition-colors"
               target="_blank"
               rel="noopener noreferrer"
